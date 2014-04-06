@@ -1,0 +1,20 @@
+#ifndef __TIMESOLVER_CLASS_FORWARDEULERSCHEME_2D__
+#define __TIMESOLVER_CLASS_FORWARDEULERSCHEME_2D__
+
+#include "./MainSolverClass2D.h"
+
+class ForwardEulerScheme2D:public MainSolverClass2D{
+
+   public:
+   	  
+      // Solve the field for 1 time step and return the 
+      // new value of Phi (will modify Phi array)
+      // return the value of dt dPhi/dt = rhs
+      double Solve( double Phi[], double vx,  double vy );
+
+   private:
+
+};
+
+
+#endif

@@ -38,7 +38,17 @@ private slots:
    void runSimulation();
    void pauseSimulation();
    void restartSimulation();
-   
+  
+  // Input action
+  void setGridSize();
+  void setTolerance();
+  // Initial Condition
+  void fSin();
+  // Main Solver
+  void laxFriedrichs();
+  // Flux Solver
+  
+  
 private:
 
    // Simulation attributes    
@@ -66,7 +76,11 @@ private:
    QMenu *formatMenu;
    QMenu *helpMenu;
    QMenu *SimulationMenu;
-
+  QMenu *InputMenu;
+  QMenu *initialConditionMenu;
+  QMenu *fluxSolverMenu;
+  QMenu *mainSolverMenu;
+  
    QActionGroup *alignmentGroup;
    QAction *exitAct;
    QAction *aboutAct;
@@ -78,7 +92,20 @@ private:
    QAction *runAct;
    QAction *pauseAct;
    QAction *restartAct;
+  QAction *gridSizeAct;
+  QPushButton *gridSizeButton;
+  QAction *toleranceAct;
+  QPushButton *toleranceButton;
+  
+  // Initial Condition
+  QAction *fSinAct;
+  QPushButton *fSinButton;
+  
+  // Flux Solver
 
+  // Main Solver
+  QAction *laxFriedrichsAct;
+  QPushButton *laxFriedrichsButton;
 };
 
 #endif

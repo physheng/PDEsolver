@@ -11,6 +11,7 @@
 using namespace std;
 #include "../FieldsDefinition/Field2DClass.h"
 #include "../Simulation/Simulation2DClass.h"
+#include "imageviewer.h"
 
 class QAction;
 class QActionGroup;
@@ -32,6 +33,7 @@ protected:
 
 private slots:
 
+   void open();
    void about();
    void aboutQt();
 
@@ -40,6 +42,10 @@ private slots:
    void restartSimulation();
    
 private:
+   /// image showing
+   QLabel *imageLabel;
+   QScrollArea *scrollArea;
+   double scaleFactor;
 
    // Simulation attributes    
    int xGridSize;
@@ -71,6 +77,7 @@ private:
    QMenu *helpMenu;
 
    QActionGroup *alignmentGroup;
+   QAction *openAct;
    QAction *exitAct;
    QAction *aboutAct;
    QAction *aboutQtAct;

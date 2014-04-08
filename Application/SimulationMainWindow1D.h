@@ -38,16 +38,28 @@ private slots:
    void runSimulation();
    void pauseSimulation();
    void restartSimulation();
-  
-  // Input action
-  void setGridSize();
-  void setTolerance();
-  // Initial Condition
-  void fSin();
-  // Main Solver
-  void laxFriedrichs();
-  // Flux Solver
-  
+   
+   // Input actions for setting the gridSize and error Tolerance
+   void setGridSize();
+   void setTolerance();
+
+   // Initial Condition (string)
+   void fSin();
+
+   // Setting Main Solver (string)
+   void setRK4Scheme();
+   void setMacCormackScheme();
+   void setForwardEulerScheme();
+   void setLaxFriedrichsScheme();
+   void setKurganovTadmor2000Scheme();
+   void setRK4KurganovTadmor2000Scheme();
+   void setKurganovTadmor2ndOrder2000Scheme();
+
+   // Setting Flux Solver (string)
+   void setMUSCLSScheme();
+   void setLinearReconstructionScheme();
+   void setPiecewiseParabolicReconstructionScheme();
+ 
   
 private:
 
@@ -76,12 +88,16 @@ private:
    QMenu *formatMenu;
    QMenu *helpMenu;
    QMenu *SimulationMenu;
-  QMenu *InputMenu;
-  QMenu *initialConditionMenu;
-  QMenu *fluxSolverMenu;
-  QMenu *mainSolverMenu;
+
+   QMenu *InputMenu;
+   QMenu *initialConditionMenu;
+   QMenu *fluxSolverMenu;
+   QMenu *mainSolverMenu;
   
-   QActionGroup *alignmentGroup;
+   QActionGroup *solverGroup;
+   QActionGroup *fluxGroup;
+   QActionGroup *initialConditionGroup;
+
    QAction *exitAct;
    QAction *aboutAct;
    QAction *aboutQtAct;
@@ -92,20 +108,30 @@ private:
    QAction *runAct;
    QAction *pauseAct;
    QAction *restartAct;
-  QAction *gridSizeAct;
-  QPushButton *gridSizeButton;
-  QAction *toleranceAct;
-  QPushButton *toleranceButton;
-  
-  // Initial Condition
-  QAction *fSinAct;
-  QPushButton *fSinButton;
-  
-  // Flux Solver
+   QAction *gridSizeAct;
 
-  // Main Solver
-  QAction *laxFriedrichsAct;
-  QPushButton *laxFriedrichsButton;
+   QPushButton *gridSizeButton;
+   QAction *toleranceAct;
+   QPushButton *toleranceButton;
+  
+   // Initial Condition
+   QAction *fSinAct;
+   QPushButton *fSinButton;
+  
+   // Flux Solver
+   QAction *setMUSCLSAct;
+   QAction *setLinearReconstructionAct;
+   QAction *setPiecewiseParabolicReconstructionAct;
+
+   // Main Solver
+   QAction *setRK4Act;
+   QAction *setMacCormackAct;
+   QAction *setForwardEulerAct;
+   QAction *setLaxFriedrichsAct;
+   QAction *setKurganovTadmor2000Act;
+   QAction *setRK4KurganovTadmor2000Act;
+   QAction *setKurganovTadmor2ndOrder2000Act;
+
 };
 
 #endif

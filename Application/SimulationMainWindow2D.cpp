@@ -1,12 +1,6 @@
 #include <QtGui>
 
 #include "SimulationMainWindow2D.h"
-#if QT_VERSION >= 0x050000
-    #include <QtWidgets>
-#endif
-#ifndef QT_NO_PRINTERqt cre
-#include <QPrintDialog>
-#endif
 
 SimulationMainWindow2D::SimulationMainWindow2D(){
 	
@@ -186,11 +180,6 @@ void SimulationMainWindow2D::aboutQt(){
 }
 
 void SimulationMainWindow2D::createActions(){
-  //MG added
-   openAct = new QAction(tr("&Open..."), this);
-   openAct->setShortcuts(QKeySequence::Open);
-   openAct->setStatusTip(tr("Open an existing file"));
-   connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
    exitAct = new QAction(tr("E&xit"), this);
    exitAct->setShortcuts(QKeySequence::Quit);
@@ -234,7 +223,6 @@ void SimulationMainWindow2D::createMenus(){
 	
    fileMenu = menuBar()->addMenu(tr("&File"));
    fileMenu->addSeparator();
-   fileMenu->addAction(openAct);
    fileMenu->addAction(exitAct);
 
    SimulationMenu = menuBar()->addMenu(tr("&Simulation"));
@@ -262,39 +250,6 @@ void SimulationMainWindow2D::createButtons(){
    QPushButton *restartButton = new QPushButton("&Restart", this);
    restartButton->setGeometry(QRect(QPoint(10, 120), QSize(80, 30)));
    connect(restartButton, SIGNAL(clicked()), this, SLOT(restartSimulation())); 
-
-    // MG added
-    imageLabel = new QLabel(this);
-    imageLabel->setBackgroundRole(QPalette::Base);
-    imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    imageLabel->setScaledContents(true);
-    QImage image("Capture.PNG");
-    if (image.isNull()) {
-        QMessageBox::information(this, tr("Image Viewer"),
-                                 tr("Cannot load "));
-        return;
-    }
-    else
-    imageLabel->setPixmap(QPixmap::fromImage(image));
-    imageLabel->setGeometry(QRect(QPoint(170, 40),
-                                     QSize(500, 150)));
    
 }
 
-// MG added
-void SimulationMainWindow2D::open(){
-    infoLabel->setText(tr("Invoked <b>File|Open</b>"));
-
-    QString fileName = QFileDialog::getOpenFileName(this,
-                                                    tr("Open File"), QDir::currentPath());
-    if (!fileName.isEmpty()) {
-           QImage image(fileName);
-           if (image.isNull()) {
-               QMessageBox::information(this, tr("Image Viewer"),
-                                        tr("Cannot load %1.").arg(fileName));
-               return;
-           }
-           imageLabel->setPixmap(QPixmap::fromImage(image));
-    }
-    
-}

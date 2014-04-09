@@ -1,136 +1,150 @@
 #include <QtGui>
-
 #include "SimulationMainWindow1D.h"
 
 SimulationMainWindow1D::SimulationMainWindow1D(){
-	menuBar()->setNativeMenuBar(false);
-  QWidget *widget = new QWidget;
-  setCentralWidget(widget);
+
+   menuBar()->setNativeMenuBar(false);
+   QWidget *widget = new QWidget;
+   setCentralWidget(widget);
   
-  QWidget *topFiller = new QWidget;
-  topFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+   QWidget *topFiller = new QWidget;
+   topFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   
-  infoLabel = new QLabel(tr("<i>Choose a menu option, or right-click to "
+   infoLabel = new QLabel(tr("<i>Choose a menu option, or right-click to "
                             "invoke a context menu</i>"));
-  infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-  infoLabel->setAlignment(Qt::AlignCenter);
+   infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+   infoLabel->setAlignment(Qt::AlignCenter);
   
-  infoLabel2 = new QLabel(tr("<i>Simulation Status: "
+   infoLabel2 = new QLabel(tr("<i>Simulation Status: "
                              "Field is not initialized</i>"));
-  infoLabel2->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-  infoLabel2->setAlignment(Qt::AlignBottom);
+   infoLabel2->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+   infoLabel2->setAlignment(Qt::AlignBottom);
   
-  timeLabel = new QLabel(tr("Time : "));
-  QString timeLabelString = tr("Time : ") + QString::number(simulationTime)
-  + tr("   Error : ") + QString::number(simulationErr) ;
-  timeLabel->setText(timeLabelString);
+   timeLabel = new QLabel(tr("Time : "));
+   QString timeLabelString = tr("Time : ") + QString::number(simulationTime)
+         + tr("   Error : ") + QString::number(simulationErr) ;
+   timeLabel->setText(timeLabelString);
   
-  QWidget *bottomFiller = new QWidget;
-  bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+   QWidget *bottomFiller = new QWidget;
+   bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   
-  QVBoxLayout *layout = new QVBoxLayout;
+   QVBoxLayout *layout = new QVBoxLayout;
   
-  layout->setMargin(5);
-  layout->addWidget(topFiller);
-  layout->addWidget(infoLabel);
-  layout->addWidget(infoLabel2);
-  layout->addWidget(timeLabel);
-  layout->addWidget(bottomFiller);
-  widget->setLayout(layout);
+   layout->setMargin(5);
+   layout->addWidget(topFiller);
+   layout->addWidget(infoLabel);
+   layout->addWidget(infoLabel2);
+   layout->addWidget(timeLabel);
+   layout->addWidget(bottomFiller);
+   widget->setLayout(layout);
   
-  createActions();
-  createMenus();
-  createButtons();
+   createActions();
+   createMenus();
+   createButtons();
   
-  QString message = tr("A context menu is available by right-clicking");
-  statusBar()->showMessage(message);
+   QString message = tr("A context menu is available by right-clicking");
+   statusBar()->showMessage(message);
   
-  setWindowTitle(tr("PDE simulation"));
-  setMinimumSize(480, 320);
-  resize(720, 480);
+   setWindowTitle(tr("PDE simulation"));
+   setMinimumSize(480, 320);
+   resize(720, 480);
   
-  // Default Values
-  gridSize = 100;
+   // Default Values
+   gridSize = 100;
   
-  mainSolverName = "RK4";
-  fluxSolverName = "LinearReconstruction";
-  simulationErrorTolerance = 1e-1;
+   mainSolverName = "RK4";
+   fluxSolverName = "LinearReconstruction";
+   simulationErrorTolerance = 1e-1;
   
-  simulation = new Simulation1DClass;
-  restartSimulation();
+   // Plotting windows
+   pwSimulation = new MainWindow(this);
+   pwError = new MainWindow(this);
+
+   simulation = new Simulation1DClass;
+   restartSimulation();
   
 }
 
 void SimulationMainWindow1D::contextMenuEvent(QContextMenuEvent *event){
-  QMenu menu(this);
-  //menu.addAction(cutAct);
-  //menu.addAction(copyAct);
-  //menu.addAction(pasteAct);
-  menu.exec(event->globalPos());
+   QMenu menu(this);
+   //menu.addAction(cutAct);
+   //menu.addAction(copyAct);
+   //menu.addAction(pasteAct);
+   menu.exec(event->globalPos());
 }
 
 void SimulationMainWindow1D::runSimulation(){
-  
-  
-  simIsRunning = true;
-  simulationTime = simulation->getActualTime();
-  simulationErr  = simulation->calcErrorNorm();
-  
-  QString timeLabelString = tr("Time : ") + QString::number(simulationTime)
-  + tr("   Error : ") + QString::number(simulationErr) ;
-  
-  QString saveFileDir       = tr("./output/snapshots/");
-  QString saveFileNameField = tr("_Snapshot.txt");
-  QString saveFileNameExact = tr("_Ex_Snapshot.txt");
-  QString fileName;
-  string fname;
-  
-  while ( simIsRunning && simulationErr < simulationErrorTolerance ){
+
+   pwSimulation->show();
+   pwError->show();
+
+   //delete pw; 
+   //MainWindow pw = new MainWindow(this);
+   //pw.show();
     
-    simulation->runSimulationOneTimeStep();
-    simIterator++;
+   simIsRunning = true;
+   simulationTime = simulation->getActualTime();
+   simulationErr  = simulation->calcErrorNorm();
+  
+   QString timeLabelString = tr("Time : ") + QString::number(simulationTime)
+       + tr("   Error : ") + QString::number(simulationErr) ;
+  
+   QString saveFileDir       = tr("./output/snapshots/");
+   QString saveFileNameField = tr("_Snapshot.txt");
+   QString saveFileNameExact = tr("_Ex_Snapshot.txt");
+   QString fileName;
+   string fname;
+  
+   while ( simIsRunning && simulationErr < simulationErrorTolerance ){
     
-    QApplication::processEvents();
+      simulation->runSimulationOneTimeStep();
+      simIterator++;
     
-    if ( simIterator%200 == 0 ){
+      QApplication::processEvents();
+    
+      if ( simIterator%200 == 0 ){
+       
+         simulationTime = simulation->getActualTime();
+         simulationErr  = simulation->calcErrorNorm();
       
-      simulationTime = simulation->getActualTime();
-      simulationErr  = simulation->calcErrorNorm();
+         timeLabelString = tr("Time : ") + QString::number(simulationTime)
+                    + tr("   Error : ") + QString::number(simulationErr);
+         timeLabel->setText(timeLabelString);
       
-      timeLabelString = tr("Time : ") + QString::number(simulationTime)
-      + tr("   Error : ") + QString::number(simulationErr);
-      timeLabel->setText(timeLabelString);
+         // Saving data into file
+         fileName = saveFileDir + QString::number(simIterator/200)
+                     + saveFileNameField ;
+         simulation->saveSnapShot(fileName.toStdString());
       
-      // Saving data into file
-      fileName = saveFileDir + QString::number(simIterator/200)
-      + saveFileNameField ;
-      simulation->saveSnapShot(fileName.toStdString());
-      
-      // Saving exact solution into file
-      fileName = saveFileDir + QString::number(simIterator/200)
-      + saveFileNameExact ;
-      simulation->saveSnapShotExactSolution(fileName.toStdString());
+         // Saving exact solution into file
+         fileName = saveFileDir + QString::number(simIterator/200)
+                    + saveFileNameExact ;
+         simulation->saveSnapShotExactSolution(fileName.toStdString());
       
 	  }
 	  
-  }
+   }
   
-  simulationTime = simulation->getActualTime();
-  simulationErr  = simulation->calcErrorNorm();
+   simulationTime = simulation->getActualTime();
+   simulationErr  = simulation->calcErrorNorm();
   
-  timeLabelString = tr("Time : ") + QString::number(simulationTime)
-  + tr("   Error : ") + QString::number(simulationErr);
-  timeLabel->setText(timeLabelString);
+   timeLabelString = tr("Time : ") + QString::number(simulationTime)
+                     + tr("   Error : ") + QString::number(simulationErr);
+   timeLabel->setText(timeLabelString);
   
 }
 
 void SimulationMainWindow1D::pauseSimulation(){
-  simIsRunning = false;
-  infoLabel->setText(tr("Simulation is Paused."));
+   simIsRunning = false;
+   infoLabel->setText(tr("Simulation is Paused."));
 }
 
 void SimulationMainWindow1D::restartSimulation(){
-  
+
+   pwSimulation->close();
+   pwError->close();
+
+
   simIterator    = 0;
   simulationTime = 0.0;
   simulationErr  = 0.0;

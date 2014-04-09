@@ -2,21 +2,26 @@
 #define __MAINWINDOW_1D_CLASS__
 
 #include <QApplication>
+#include <QInputDialog>
 #include <QMainWindow>
 #include <QPushButton>
 #include <QString>
+#include <QTimer>
 
 #include <iostream>
 #include <string>
 using namespace std;
 #include "../FieldsDefinition/Field1DClass.h"
 #include "../Simulation/Simulation1DClass.h"
+#include "./QCustomPlot/qcustomplot.h"
+#include "./PlottingMainWindow.h"
 
 class QAction;
 class QActionGroup;
 class QPushButton;
 class QLabel;
 class QMenu;
+
 
 class SimulationMainWindow1D: public QMainWindow{
 
@@ -131,6 +136,10 @@ private:
    QAction *setKurganovTadmor2000Act;
    QAction *setRK4KurganovTadmor2000Act;
    QAction *setKurganovTadmor2ndOrder2000Act;
+
+   // For plotting (plotting windows)
+   MainWindow *pwSimulation;
+   MainWindow *pwError;
 
 };
 

@@ -7,6 +7,10 @@
 #include <QPushButton>
 #include <QString>
 #include <QTimer>
+// add slider and LCD 
+#include <qfont.h>
+#include <qlcdnumber.h>
+#include <qslider.h>
 
 #include <iostream>
 #include <string>

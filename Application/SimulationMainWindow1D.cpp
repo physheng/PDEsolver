@@ -47,8 +47,20 @@ SimulationMainWindow1D::SimulationMainWindow1D(){
   
    setWindowTitle(tr("PDE simulation"));
    setMinimumSize(480, 320);
+   setMaximumSize(800,600);
    resize(720, 480);
   
+   //set LCD and slider
+   QLCDNumber* number = new QLCDNumber(this);
+   number->setSegmentStyle(QLCDNumber::Filled);
+   number->setMode(QLCDNumber::Dec);
+   number->setGeometry( 600, 40, 80, 30 );
+   QSlider * slider = new QSlider( Qt::Horizontal, this);
+   slider->setRange(10,1000);
+   slider->setValue( 10 );
+   slider->setGeometry(600, 80, 80, 30);
+   connect(slider, SIGNAL(valueChanged(int)), number, SLOT(display(int)));
+    
    // Default Values
    gridSize = 100;
   
@@ -332,7 +344,6 @@ void SimulationMainWindow1D::createMenus(){
    fluxSolverMenu->addAction(setPiecewiseParabolicReconstructionAct);
    fluxSolverMenu->addSeparator();
  
-   
    mainSolverMenu = InputMenu->addMenu(tr("&Main Solver"));
    mainSolverMenu->addAction(setRK4Act);
    mainSolverMenu->addAction(setMacCormackAct);

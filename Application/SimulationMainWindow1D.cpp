@@ -47,20 +47,8 @@ SimulationMainWindow1D::SimulationMainWindow1D(){
   
    setWindowTitle(tr("PDE simulation"));
    setMinimumSize(480, 320);
-   setMaximumSize(800,600);
    resize(720, 480);
   
-   //set LCD and slider
-   QLCDNumber* number = new QLCDNumber(this);
-   number->setSegmentStyle(QLCDNumber::Filled);
-   number->setMode(QLCDNumber::Dec);
-   number->setGeometry( 600, 40, 80, 30 );
-   QSlider * slider = new QSlider( Qt::Horizontal, this);
-   slider->setRange(10,1000);
-   slider->setValue( 10 );
-   slider->setGeometry(600, 80, 80, 30);
-   connect(slider, SIGNAL(valueChanged(int)), number, SLOT(display(int)));
-    
    // Default Values
    gridSize = 100;
   
@@ -87,8 +75,8 @@ void SimulationMainWindow1D::contextMenuEvent(QContextMenuEvent *event){
 
 void SimulationMainWindow1D::runSimulation(){
 
-   pwSimulation->show();
-   pwError->show();
+//   pwSimulation->show();
+//   pwError->show();
 
    //delete pw; 
    //MainWindow pw = new MainWindow(this);
@@ -108,31 +96,36 @@ void SimulationMainWindow1D::runSimulation(){
    string fname;
   
    while ( simIsRunning && simulationErr < simulationErrorTolerance ){
-    
       simulation->runSimulationOneTimeStep();
       simIterator++;
-    
+
       QApplication::processEvents();
-    
+
       if ( simIterator%200 == 0 ){
-       
+
          simulationTime = simulation->getActualTime();
          simulationErr  = simulation->calcErrorNorm();
-      
+
          timeLabelString = tr("Time : ") + QString::number(simulationTime)
                     + tr("   Error : ") + QString::number(simulationErr);
          timeLabel->setText(timeLabelString);
-      
+
          // Saving data into file
          fileName = saveFileDir + QString::number(simIterator/200)
                      + saveFileNameField ;
          simulation->saveSnapShot(fileName.toStdString());
-      
+
+         pwSimulation->setThePlot(fileName.toStdString(),gridSize);
+
+//         pwSimulation->show();
+         pwSimulation->show();
+         delay();
+
          // Saving exact solution into file
          fileName = saveFileDir + QString::number(simIterator/200)
                     + saveFileNameExact ;
          simulation->saveSnapShotExactSolution(fileName.toStdString());
-      
+
 	  }
 	  
    }
@@ -143,7 +136,9 @@ void SimulationMainWindow1D::runSimulation(){
    timeLabelString = tr("Time : ") + QString::number(simulationTime)
                      + tr("   Error : ") + QString::number(simulationErr);
    timeLabel->setText(timeLabelString);
-  
+
+
+
 }
 
 void SimulationMainWindow1D::pauseSimulation(){
@@ -344,6 +339,7 @@ void SimulationMainWindow1D::createMenus(){
    fluxSolverMenu->addAction(setPiecewiseParabolicReconstructionAct);
    fluxSolverMenu->addSeparator();
  
+   
    mainSolverMenu = InputMenu->addMenu(tr("&Main Solver"));
    mainSolverMenu->addAction(setRK4Act);
    mainSolverMenu->addAction(setMacCormackAct);

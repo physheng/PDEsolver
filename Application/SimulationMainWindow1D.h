@@ -7,10 +7,6 @@
 #include <QPushButton>
 #include <QString>
 #include <QTimer>
-// add slider and LCD 
-#include <qfont.h>
-#include <qlcdnumber.h>
-#include <qslider.h>
 
 #include <iostream>
 #include <string>
@@ -19,6 +15,7 @@ using namespace std;
 #include "../Simulation/Simulation1DClass.h"
 #include "./QCustomPlot/qcustomplot.h"
 #include "./PlottingMainWindow.h"
+#include "../GlobalFunctions/delay.h"
 
 class QAction;
 class QActionGroup;

@@ -43,8 +43,8 @@ void MainWindow::setThePlot(string fileName, int gridSize)
    ui->customPlot->xAxis->setLabel("r");
    ui->customPlot->yAxis->setLabel("Phi");
    // set axes ranges, so we see all data:
-   ui->customPlot->xAxis->setRange(0, 7);
-   ui->customPlot->yAxis->setRange(-1, 1);
+   ui->customPlot->xAxis->setRange(0, 6.28318);
+   ui->customPlot->yAxis->setRange(-1.5, 1.5);
    ui->customPlot->replot();
 }
 

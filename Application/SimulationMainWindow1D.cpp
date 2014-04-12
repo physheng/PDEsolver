@@ -51,9 +51,13 @@ SimulationMainWindow1D::SimulationMainWindow1D(){
   
    // Default Values
    gridSize = 100;
+   delaySecond = 0.5;
+
+   initialConditionName = "Sin";
   
    mainSolverName = "RK4";
    fluxSolverName = "LinearReconstruction";
+
    simulationErrorTolerance = 1e-1;
   
    // Plotting windows
@@ -87,7 +91,7 @@ void SimulationMainWindow1D::runSimulation(){
    simulationErr  = simulation->calcErrorNorm();
   
    QString timeLabelString = tr("Time : ") + QString::number(simulationTime)
-       + tr("   Error : ") + QString::number(simulationErr) ;
+                      + tr("   Error : ") + QString::number(simulationErr) ;
   
    QString saveFileDir       = tr("./output/snapshots/");
    QString saveFileNameField = tr("_Snapshot.txt");
@@ -101,7 +105,7 @@ void SimulationMainWindow1D::runSimulation(){
 
       QApplication::processEvents();
 
-      if ( simIterator%200 == 0 ){
+      if ( simIterator%1 == 0 ){
 
          simulationTime = simulation->getActualTime();
          simulationErr  = simulation->calcErrorNorm();
@@ -111,7 +115,7 @@ void SimulationMainWindow1D::runSimulation(){
          timeLabel->setText(timeLabelString);
 
          // Saving data into file
-         fileName = saveFileDir + QString::number(simIterator/200)
+         fileName = saveFileDir + QString::number(simIterator/1)
                      + saveFileNameField ;
          simulation->saveSnapShot(fileName.toStdString());
 
@@ -122,7 +126,7 @@ void SimulationMainWindow1D::runSimulation(){
          delay();
 
          // Saving exact solution into file
-         fileName = saveFileDir + QString::number(simIterator/200)
+         fileName = saveFileDir + QString::number(simIterator/1)
                     + saveFileNameExact ;
          simulation->saveSnapShotExactSolution(fileName.toStdString());
 
@@ -137,8 +141,6 @@ void SimulationMainWindow1D::runSimulation(){
                      + tr("   Error : ") + QString::number(simulationErr);
    timeLabel->setText(timeLabelString);
 
-
-
 }
 
 void SimulationMainWindow1D::pauseSimulation(){
@@ -151,31 +153,30 @@ void SimulationMainWindow1D::restartSimulation(){
    pwSimulation->close();
    pwError->close();
 
-
-  simIterator    = 0;
-  simulationTime = 0.0;
-  simulationErr  = 0.0;
-  simIsRunning   = false;
+   simIterator    = 0;
+   simulationTime = 0.0;
+   simulationErr  = 0.0;
+   simIsRunning   = false;
   
-  infoLabel->setText(tr("Simulation is restarted."));
-  QString timeLabelString = tr("Time : ") + QString::number(simulationTime)
-  + tr("   Error : ") + QString::number(simulationErr) ;
-  timeLabel->setText(timeLabelString);
+   infoLabel->setText(tr("Simulation is restarted."));
+   QString timeLabelString = tr("Time : ") + QString::number(simulationTime)
+                      + tr("   Error : ") + QString::number(simulationErr);
+   timeLabel->setText(timeLabelString);
   
-  simulation->initialize(gridSize);
+   simulation->initialize(gridSize, initialConditionName);
   
-  simulation->setupSimulation( mainSolverName, fluxSolverName);
+   simulation->setupSimulation(mainSolverName, fluxSolverName);
   
-  simulation->saveSnapShot("./output/snapshots/IC_Snapshot.txt");
+   simulation->saveSnapShot("./output/snapshots/IC_Snapshot.txt");
   
-  QString infoLabel2String = tr("Main Solver Scheme: ")
-  + QString::fromStdString(mainSolverName)
-  + tr(" - Flux Solver Scheme: ")
-  + QString::fromStdString(fluxSolverName)
-  + tr(" - Grid Size: ")
-  + QString::number(gridSize);
+   QString infoLabel2String = tr("Main Solver Scheme: ")
+                              + QString::fromStdString(mainSolverName) 
+                              + tr(" - Flux Solver Scheme: ")
+                              + QString::fromStdString(fluxSolverName)
+                              + tr(" - Grid Size: ")
+                              + QString::number(gridSize);
   infoLabel2->setText(infoLabel2String);
-  
+
 }
 
 void SimulationMainWindow1D::about(){
@@ -223,24 +224,32 @@ void SimulationMainWindow1D::createActions(){
   
    // Input manu actions
    gridSizeAct = new QAction(tr("&Grid Size"), this);
-   gridSizeAct->setCheckable(true);
-   gridSizeAct->setStatusTip(tr("Set the grid size"));
    connect(gridSizeAct, SIGNAL(triggered()), this, SLOT(setGridSize()));
   
    toleranceAct = new QAction(tr("&Error Tolerance"), this);
-   toleranceAct->setCheckable(true);
-   toleranceAct->setStatusTip(tr("Set the error tolerance"));
    connect(toleranceAct, SIGNAL(triggered()), this, SLOT(setTolerance()));
+
+   delaySecAct = new QAction(tr("&Animation Delay"), this);
+   connect(delaySecAct, SIGNAL(triggered()), this, SLOT(setDelaySec()));
   
    // Setting the initial condition
-   fSinAct = new QAction(tr("&sin"), this);
-   fSinAct->setCheckable(true);
-   fSinAct->setStatusTip(tr("Set the initial wavefunction to sin"));
-   connect(fSinAct, SIGNAL(triggered()), this, SLOT(fSin()));
+   setICSinAct = new QAction(tr("&Sin"), this);
+   setICSinAct->setCheckable(true);
+   connect(setICSinAct, SIGNAL(triggered()), this, SLOT(setICSin()));
 
-   initialConditionGroup = new QActionGroup(this);
-   initialConditionGroup->addAction(fSinAct);
-   fSinAct->setChecked(true);
+   setICStepAct = new QAction(tr("&Step"), this);
+   setICStepAct->setCheckable(true);
+   connect(setICStepAct, SIGNAL(triggered()), this, SLOT(setICStep()));
+
+   setICRndNoiseAct = new QAction(tr("&Random Noise"), this);
+   setICRndNoiseAct->setCheckable(true);
+   connect(setICRndNoiseAct, SIGNAL(triggered()), this, SLOT(setICRndNoise()));
+
+   icGroup = new QActionGroup(this);
+   icGroup->addAction(setICSinAct);
+   icGroup->addAction(setICStepAct);
+   icGroup->addAction(setICRndNoiseAct);
+   setICSinAct->setChecked(true);
   
    // Setting main solver
    setLaxFriedrichsAct = new QAction(tr("Lax-FriedRichs Scheme"), this);
@@ -248,7 +257,7 @@ void SimulationMainWindow1D::createActions(){
    connect(setLaxFriedrichsAct, SIGNAL(triggered()), this,
             SLOT(setLaxFriedrichsScheme()));
 
-   setRK4Act = new QAction(tr("RK Scheme"), this);
+   setRK4Act = new QAction(tr("RK4 Scheme"), this);
    setRK4Act->setCheckable(true);
    connect(setRK4Act, SIGNAL(triggered()), this,SLOT(setRK4Scheme()));
 
@@ -328,9 +337,12 @@ void SimulationMainWindow1D::createMenus(){
    InputMenu = menuBar()->addMenu(tr("&Input"));
    InputMenu->addAction(gridSizeAct);
    InputMenu->addAction(toleranceAct);
+   InputMenu->addAction(delaySecAct);
    
    initialConditionMenu = InputMenu->addMenu(tr("&Initial Condition"));
-   initialConditionMenu->addAction(fSinAct);
+   initialConditionMenu->addAction(setICSinAct);
+   initialConditionMenu->addAction(setICStepAct);
+   initialConditionMenu->addAction(setICRndNoiseAct);
 
    fluxSolverMenu = InputMenu->addMenu(tr("&Flux Solver"));
    fluxSolverMenu->addSeparator()->setText(tr("Alignment"));
@@ -344,6 +356,7 @@ void SimulationMainWindow1D::createMenus(){
    mainSolverMenu->addAction(setRK4Act);
    mainSolverMenu->addAction(setMacCormackAct);
    mainSolverMenu->addAction(setForwardEulerAct);
+   mainSolverMenu->addAction(setLaxFriedrichsAct);
    mainSolverMenu->addAction(setKurganovTadmor2000Act);
    mainSolverMenu->addAction(setRK4KurganovTadmor2000Act);
    mainSolverMenu->addAction(setKurganovTadmor2ndOrder2000Act);
@@ -372,15 +385,50 @@ void SimulationMainWindow1D::createButtons(){
 }
 
 void SimulationMainWindow1D::setGridSize(){
-   infoLabel->setText(tr("Invoked <b>Input|Grid Size</b>"));
+   bool ok;
+   int gridSizeInput = QInputDialog::getInt(this, tr("Get Grid Size"),
+                               tr("Grid Size:"), 100, 10, 200000, 100, &ok);
+   if ( ok ){
+      gridSize = gridSizeInput;
+      restartSimulation();
+   }
 }
 
 void SimulationMainWindow1D::setTolerance(){
-   infoLabel->setText(tr("Invoked <b>Input|Error Tolerance</b>"));
+   bool ok;
+   double errorToleranceInput = 
+               QInputDialog::getDouble(this, tr("Get Error Tolerance"),
+                       tr("Error Tolerance:"), 0.1, 0.0001, 10, 4, &ok);
+   if ( ok ){
+      simulationErrorTolerance = errorToleranceInput;
+   }
 }
 
-void SimulationMainWindow1D::fSin(){
-   infoLabel->setText(tr("Invoked <b>Input|Initial Condition|sin|Bold</b>"));
+void SimulationMainWindow1D::setDelaySec(){
+   bool ok;
+   double delaySecondInput = 
+               QInputDialog::getDouble(this, tr("Get Animation Delay Time"),
+                       tr("Delay (in second):"), 0.5, 0.1, 10, 1, &ok);
+   if ( ok ){
+      delaySecond = delaySecondInput;
+   }
+}
+
+
+// Setting the initial condition
+void SimulationMainWindow1D::setICSin(){
+   initialConditionName =  "Sin";
+   restartSimulation();
+}
+
+void SimulationMainWindow1D::setICStep(){
+   initialConditionName =  "Step";
+   restartSimulation();
+}
+
+void SimulationMainWindow1D::setICRndNoise(){
+   initialConditionName =  "RndNoise";
+   restartSimulation();
 }
 
 
@@ -438,8 +486,10 @@ void SimulationMainWindow1D::setPiecewiseParabolicReconstructionScheme(){
    restartSimulation();
 }
 
+
+// Delay function
 void SimulationMainWindow1D::delay(){
-   QTime dieTime= QTime::currentTime().addSecs(1);
+   QTime dieTime= QTime::currentTime().addMSecs(1000.0*delaySecond);
    while( QTime::currentTime() < dieTime ){
       QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
    }

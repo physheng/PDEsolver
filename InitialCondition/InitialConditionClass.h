@@ -3,6 +3,7 @@
 
 
 #include <cmath>
+#include <random>
 #include <iostream>
 using namespace std;
 
@@ -17,5 +18,7 @@ class InitialConditionClass{
 };
 
 #include "InitialConditionClass_Sin.h"
+#include "InitialConditionClass_Step.h"
+#include "InitialConditionClass_RndNoise.h"
 
 #endif

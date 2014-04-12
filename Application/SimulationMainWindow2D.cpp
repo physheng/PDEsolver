@@ -50,16 +50,17 @@ SimulationMainWindow2D::SimulationMainWindow2D(){
    resize(720, 480);
 
    // Default values
-
    xGridSize = 200;
    yGridSize = 400;
+
+   delaySecond = 0.5;
 
    gridSize  = xGridSize * yGridSize;
 
    vx = 1.0;
    vy = 1.0;
 
-   mainSolverName = "LaxFriedrichs";
+   mainSolverName = "RK4";
    fluxSolverName = "LinearReconstruction";
 
    simulationErrorTolerance = 1e-2;
@@ -158,8 +159,6 @@ void SimulationMainWindow2D::restartSimulation(){
 
    QString infoLabel2String = tr("Main Solver Scheme: ")
                    + QString::fromStdString(mainSolverName)
-                   //+ tr(" - Flux Solver Scheme: ")
-                   //+ QString::fromStdString(fluxSolverName) 
                    + tr(" - X Grid Size: ")
                    + QString::number(xGridSize) 
                    + tr(" - Y Grid Size: ")
@@ -195,13 +194,7 @@ void SimulationMainWindow2D::createActions(){
    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
    connect(aboutQtAct, SIGNAL(triggered()), this, SLOT(aboutQt()));
 
-   alignmentGroup = new QActionGroup(this);
-   //alignmentGroup->addAction(leftAlignAct);
-   //alignmentGroup->addAction(rightAlignAct);
-   //alignmentGroup->addAction(justifyAct);
-   //alignmentGroup->addAction(centerAct);
-   //leftAlignAct->setChecked(true);
-
+   // Simulation actions
    runAct = new QAction(tr("&Run"), this);
    runAct->setShortcut(tr("Ctrl+Alt+R"));
    runAct->setStatusTip(tr("Running the simulation"));
@@ -217,6 +210,47 @@ void SimulationMainWindow2D::createActions(){
    restartAct->setStatusTip(tr("Restart the simulation"));
    connect(restartAct, SIGNAL(triggered()), this, SLOT(restartSimulation()));
 
+   // Input actinos  
+   toleranceAct = new QAction(tr("&Error Tolerance"), this);
+   connect(toleranceAct, SIGNAL(triggered()), this, SLOT(setTolerance()));
+
+   delaySecAct = new QAction(tr("&Animation Delay"), this);
+   connect(delaySecAct, SIGNAL(triggered()), this, SLOT(setDelaySec()));
+
+   // Setting the initial condition
+  
+   // Setting main solver
+   setLaxFriedrichsAct = new QAction(tr("Lax-FriedRichs Scheme"), this);
+   setLaxFriedrichsAct->setCheckable(true);
+   connect(setLaxFriedrichsAct, SIGNAL(triggered()), this,
+            SLOT(setLaxFriedrichsScheme()));
+
+   setRK4Act = new QAction(tr("RK4 Scheme"), this);
+   setRK4Act->setCheckable(true);
+   connect(setRK4Act, SIGNAL(triggered()), this,SLOT(setRK4Scheme()));
+
+   setForwardEulerAct = new QAction(tr("Forward Euler Scheme"), this);
+   setForwardEulerAct->setCheckable(true);
+   connect(setForwardEulerAct, SIGNAL(triggered()), this,
+            SLOT(setForwardEulerScheme()));
+   
+   solverGroup = new QActionGroup(this);
+   solverGroup->addAction(setForwardEulerAct);
+   solverGroup->addAction(setLaxFriedrichsAct);
+   solverGroup->addAction(setRK4Act);
+   setRK4Act->setChecked(true);
+ 
+   // Setting flux solver
+   setLinearReconstructionAct = 
+             new QAction(tr("Linear Reconstruction Scheme"), this);
+   setLinearReconstructionAct->setCheckable(true);
+   connect(setLinearReconstructionAct, SIGNAL(triggered()), this,
+             SLOT(setLinearReconstructionScheme()));
+
+   fluxGroup = new QActionGroup(this);
+   fluxGroup->addAction(setLinearReconstructionAct);
+   setLinearReconstructionAct->setChecked(true);
+
 }
 
 void SimulationMainWindow2D::createMenus(){
@@ -229,6 +263,20 @@ void SimulationMainWindow2D::createMenus(){
    SimulationMenu->addAction(runAct);
    SimulationMenu->addAction(pauseAct);
    SimulationMenu->addAction(restartAct);
+
+   InputMenu = menuBar()->addMenu(tr("&Input"));
+   InputMenu->addAction(toleranceAct);
+   InputMenu->addAction(delaySecAct);
+   
+   fluxSolverMenu = InputMenu->addMenu(tr("&Flux Solver"));
+   fluxSolverMenu->addSeparator()->setText(tr("Alignment"));
+   fluxSolverMenu->addAction(setLinearReconstructionAct);
+   fluxSolverMenu->addSeparator();
+ 
+   mainSolverMenu = InputMenu->addMenu(tr("&Main Solver"));
+   mainSolverMenu->addAction(setRK4Act);
+   mainSolverMenu->addAction(setForwardEulerAct);
+   mainSolverMenu->addAction(setLaxFriedrichsAct);
 
    helpMenu = menuBar()->addMenu(tr("&Help"));
    helpMenu->addAction(aboutAct);
@@ -253,3 +301,57 @@ void SimulationMainWindow2D::createButtons(){
    
 }
 
+
+// Setting the main solver
+void SimulationMainWindow2D::setLaxFriedrichsScheme(){
+   mainSolverName =  "LaxFriedrichs";
+   restartSimulation();
+}
+
+void SimulationMainWindow2D::setRK4Scheme(){
+   mainSolverName =  "RK4";
+   restartSimulation();
+}
+
+void SimulationMainWindow2D::setForwardEulerScheme(){
+   mainSolverName =  "ForwardEuler";
+   restartSimulation();
+}
+
+
+// Setting the flux solver
+void SimulationMainWindow2D::setLinearReconstructionScheme(){
+   fluxSolverName =  "LinearReconstruction";
+   restartSimulation();
+}
+
+
+// Setting inputs
+void SimulationMainWindow2D::setTolerance(){
+   bool ok;
+   double errorToleranceInput = 
+               QInputDialog::getDouble(this, tr("Get Error Tolerance"),
+                       tr("Error Tolerance:"), 0.1, 0.0001, 10, 4, &ok);
+   if ( ok ){
+      simulationErrorTolerance = errorToleranceInput;
+   }
+}
+
+void SimulationMainWindow2D::setDelaySec(){
+   bool ok;
+   double delaySecondInput = 
+               QInputDialog::getDouble(this, tr("Get Animation Delay Time"),
+                       tr("Delay (in second):"), 0.5, 0.1, 10, 1, &ok);
+   if ( ok ){
+      delaySecond = delaySecondInput;
+   }
+}
+
+
+// Delay function
+void SimulationMainWindow2D::delay(){
+   QTime dieTime= QTime::currentTime().addMSecs(1000.0*delaySecond);
+   while( QTime::currentTime() < dieTime ){
+      QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+   }
+}

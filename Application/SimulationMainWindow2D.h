@@ -2,9 +2,11 @@
 #define __MAINWINDOW_2D_CLASS__
 
 #include <QApplication>
+#include <QInputDialog>
 #include <QMainWindow>
 #include <QPushButton>
 #include <QString>
+#include <QTimer>
 
 #include <iostream>
 #include <string>
@@ -29,6 +31,7 @@ public:
 protected:
 
    void contextMenuEvent(QContextMenuEvent *event);
+   void delay();
 
 private slots:
 
@@ -38,8 +41,19 @@ private slots:
    void runSimulation();
    void pauseSimulation();
    void restartSimulation();
-   
+
+   void setTolerance();
+   void setDelaySec();
+
+   void setRK4Scheme();
+   void setForwardEulerScheme();
+   void setLaxFriedrichsScheme();
+
+   // Setting Flux Solver (string)
+   void setLinearReconstructionScheme();
+    
 private:
+
    // Simulation attributes    
    int xGridSize;
    int yGridSize;
@@ -59,6 +73,8 @@ private:
    string fluxSolverName;
 
    bool simIsRunning;
+
+   double delaySecond;
    ///////////
 
    void createActions();
@@ -69,7 +85,15 @@ private:
    QMenu *SimulationMenu;
    QMenu *helpMenu;
 
-   QActionGroup *alignmentGroup;
+   QMenu *InputMenu;
+   QMenu *initialConditionMenu;
+   QMenu *fluxSolverMenu;
+   QMenu *mainSolverMenu;
+
+   QActionGroup *solverGroup;
+   QActionGroup *fluxGroup;
+   QActionGroup *initialConditionGroup;
+
    QAction *exitAct;
    QAction *aboutAct;
    QAction *aboutQtAct;
@@ -81,6 +105,18 @@ private:
    QAction *runAct;
    QAction *pauseAct;
    QAction *restartAct;
+
+   // Input Parameters
+   QAction *toleranceAct;
+   QAction *delaySecAct;
+       
+   // Flux Solver
+   QAction *setLinearReconstructionAct;
+
+   // Main Solver
+   QAction *setRK4Act;
+   QAction *setForwardEulerAct;
+   QAction *setLaxFriedrichsAct;
 
 };
 

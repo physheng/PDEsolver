@@ -48,9 +48,12 @@ private slots:
    // Input actions for setting the gridSize and error Tolerance
    void setGridSize();
    void setTolerance();
+   void setDelaySec();
 
    // Initial Condition (string)
-   void fSin();
+   void setICSin();
+   void setICStep();
+   void setICRndNoise();
 
    // Setting Main Solver (string)
    void setRK4Scheme();
@@ -81,8 +84,11 @@ private:
 
    string mainSolverName;
    string fluxSolverName;
+   string initialConditionName;
 
    bool simIsRunning;
+
+   double delaySecond;
    ///////////
 
    void createActions();
@@ -90,8 +96,6 @@ private:
    void createButtons();
 
    QMenu *fileMenu;
-   QMenu *editMenu;
-   QMenu *formatMenu;
    QMenu *helpMenu;
    QMenu *SimulationMenu;
 
@@ -102,11 +106,12 @@ private:
   
    QActionGroup *solverGroup;
    QActionGroup *fluxGroup;
-   QActionGroup *initialConditionGroup;
+   QActionGroup *icGroup;
 
    QAction *exitAct;
    QAction *aboutAct;
    QAction *aboutQtAct;
+
    QLabel *infoLabel;
    QLabel *infoLabel2;
    QLabel *timeLabel;
@@ -114,15 +119,16 @@ private:
    QAction *runAct;
    QAction *pauseAct;
    QAction *restartAct;
-   QAction *gridSizeAct;
 
-   QPushButton *gridSizeButton;
+   // Input Parameters
+   QAction *gridSizeAct;
    QAction *toleranceAct;
-   QPushButton *toleranceButton;
-  
+   QAction *delaySecAct;
+     
    // Initial Condition
-   QAction *fSinAct;
-   QPushButton *fSinButton;
+   QAction *setICSinAct;
+   QAction *setICStepAct;
+   QAction *setICRndNoiseAct;
   
    // Flux Solver
    QAction *setMUSCLSAct;

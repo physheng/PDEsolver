@@ -437,3 +437,10 @@ void SimulationMainWindow1D::setPiecewiseParabolicReconstructionScheme(){
    fluxSolverName =  "PiecewiseParabolicReconstruction";
    restartSimulation();
 }
+
+void SimulationMainWindow1D::delay(){
+   QTime dieTime= QTime::currentTime().addSecs(1);
+   while( QTime::currentTime() < dieTime ){
+      QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+   }
+}

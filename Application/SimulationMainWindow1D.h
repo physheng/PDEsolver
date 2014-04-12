@@ -15,7 +15,6 @@ using namespace std;
 #include "../Simulation/Simulation1DClass.h"
 #include "./QCustomPlot/qcustomplot.h"
 #include "./PlottingMainWindow.h"
-#include "../GlobalFunctions/delay.h"
 
 class QAction;
 class QActionGroup;
@@ -35,6 +34,7 @@ public:
 protected:
 
    void contextMenuEvent(QContextMenuEvent *event);
+   void delay();
 
 private slots:
 

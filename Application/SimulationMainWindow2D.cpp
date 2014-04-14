@@ -28,7 +28,7 @@ SimulationMainWindow2D::SimulationMainWindow2D(){
    // choose a picture from file
    picLabel = new QLabel;
    // To do: member function to get filename
-   filePath = tr("/Users/Sheng/Dropbox/EECS402/PDEsolver-master-Mac/dog.ppm");
+   filePath = tr("./dog.ppm");
    pixmap.load(filePath);
    picLabel->setPixmap(pixmap);   
 

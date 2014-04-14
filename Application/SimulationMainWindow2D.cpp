@@ -25,6 +25,13 @@ SimulationMainWindow2D::SimulationMainWindow2D(){
                    + tr("   Error : ") + QString::number(simulationErr) ; 	
    timeLabel->setText(timeLabelString);	
 
+   // choose a picture from file
+   picLabel = new QLabel;
+   // To do: member function to get filename
+   filePath = tr("/Users/Sheng/Dropbox/EECS402/PDEsolver-master-Mac/dog.ppm");
+   pixmap.load(filePath);
+   picLabel->setPixmap(pixmap);   
+
    QWidget *bottomFiller = new QWidget;
    bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -180,6 +187,11 @@ void SimulationMainWindow2D::aboutQt(){
 
 void SimulationMainWindow2D::createActions(){
 
+   filePathAct = new QAction(tr("&File Path"),this);
+   filePathAct->setShortcut(tr("Ctrl+O"));
+   connect(filePathAct, SIGNAL(triggered()), this, SLOT(setFilePath()));
+   
+
    exitAct = new QAction(tr("E&xit"), this);
    exitAct->setShortcuts(QKeySequence::Quit);
    exitAct->setStatusTip(tr("Exit the application"));
@@ -257,6 +269,7 @@ void SimulationMainWindow2D::createMenus(){
 	
    fileMenu = menuBar()->addMenu(tr("&File"));
    fileMenu->addSeparator();
+   fileMenu->addAction(filePathAct);
    fileMenu->addAction(exitAct);
 
    SimulationMenu = menuBar()->addMenu(tr("&Simulation"));
@@ -355,3 +368,13 @@ void SimulationMainWindow2D::delay(){
       QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
    }
 }
+
+void SimulationMainWindow2D::setFilePath(){
+   bool status;
+   QString inputFileName = QInputDialog::getText(this, tr("QInputDialog::getText()"),tr("Input File Path:"),QLineEdit::Normal, QDir::home().dirName(), &status);
+   if (status){
+      filePath = inputFileName;
+      restartSimulation();
+   }
+}
+

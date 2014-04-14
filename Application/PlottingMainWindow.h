@@ -22,7 +22,6 @@ public:
   
   void setThePlot(string fileName, int gridSize);
 
-  
 private slots:
   void realtimeDataSlot();
   void bracketDataSlot();

@@ -20,9 +20,9 @@ public:
   explicit MainWindow(QWidget *parent = 0);
   ~MainWindow();
   
-  void setThePlot(string fileName, int gridSize);
+  void setThePlot(string fileName, string fileName_ex, int gridSize);
+  void setThePlot_error(string fileName, string fileName_ex, int gridSize);
 
-  
 private slots:
   void realtimeDataSlot();
   void bracketDataSlot();

@@ -96,7 +96,7 @@ void SimulationMainWindow1D::runSimulation(){
    QString saveFileDir       = tr("./output/snapshots/");
    QString saveFileNameField = tr("_Snapshot.txt");
    QString saveFileNameExact = tr("_Ex_Snapshot.txt");
-   QString fileName;
+   QString fileName, fileName_ex;
    string fname;
   
    while ( simIsRunning && simulationErr < simulationErrorTolerance ){
@@ -119,16 +119,21 @@ void SimulationMainWindow1D::runSimulation(){
                      + saveFileNameField ;
          simulation->saveSnapShot(fileName.toStdString());
 
-         pwSimulation->setThePlot(fileName.toStdString(),gridSize);
 
-//         pwSimulation->show();
-         pwSimulation->show();
-         delay();
 
          // Saving exact solution into file
-         fileName = saveFileDir + QString::number(simIterator/1)
+         fileName_ex = saveFileDir + QString::number(simIterator/1)
                     + saveFileNameExact ;
-         simulation->saveSnapShotExactSolution(fileName.toStdString());
+         simulation->saveSnapShotExactSolution(fileName_ex.toStdString());
+
+
+         pwSimulation->setThePlot(fileName.toStdString(),fileName_ex.toStdString(),gridSize);
+         pwSimulation->show();
+
+         pwError->setThePlot_error(fileName.toStdString(),fileName_ex.toStdString(),gridSize);
+         pwError->show();
+         delay();
+
 
 	  }
 	  

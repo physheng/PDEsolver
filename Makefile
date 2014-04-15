@@ -39,7 +39,7 @@ MKDIR         = mkdir -p
 CONFIG += c++11
 ####### Output directory
 
-OBJECTS_DIR   = ./
+OBJECTS_DIR   = ./obj
 
 ####### Files
 
@@ -168,7 +168,9 @@ first: all
 
 all: Makefile $(TARGET)
 
-$(TARGET):  $(OBJECTS)  
+$(TARGET):  $(OBJECTS)
+	$(MKDIR) ./output
+	$(MKDIR) ./output/snapshots
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: PDEsolver.pro  /usr/lib/qt4/mkspecs/linux-g++/qmake.conf /usr/lib/qt4/mkspecs/common/unix.conf \

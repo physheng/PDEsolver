@@ -13,6 +13,7 @@
 using namespace std;
 #include "../FieldsDefinition/Field2DClass.h"
 #include "../Simulation/Simulation2DClass.h"
+#include "./Plot2D.h"
 
 class QAction;
 class QActionGroup;
@@ -54,6 +55,9 @@ private slots:
     
 private:
 
+   // 2D plot file path
+   QString filePath;
+
    // Simulation attributes    
    int xGridSize;
    int yGridSize;
@@ -80,6 +84,7 @@ private:
    void createActions();
    void createMenus();
    void createButtons();
+   void setFilePath();
 
    QMenu *fileMenu;
    QMenu *SimulationMenu;
@@ -97,10 +102,12 @@ private:
    QAction *exitAct;
    QAction *aboutAct;
    QAction *aboutQtAct;
+   QAction *filePathAct;
 
    QLabel *infoLabel;
    QLabel *infoLabel2;
    QLabel *timeLabel;
+   QLabel *picLabel; 
 
    QAction *runAct;
    QAction *pauseAct;
@@ -118,6 +125,9 @@ private:
    QAction *setForwardEulerAct;
    QAction *setLaxFriedrichsAct;
 
+   QPixmap pixmap;
+  MyMainWindow *picture2D;
 };
+
 
 #endif

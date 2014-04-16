@@ -4,6 +4,7 @@
 
 SimulationMainWindow2D::SimulationMainWindow2D(){
 	
+   menuBar()->setNativeMenuBar(false);
    QWidget *widget = new QWidget;
    setCentralWidget(widget);
    
@@ -24,6 +25,13 @@ SimulationMainWindow2D::SimulationMainWindow2D(){
    QString timeLabelString = tr("Time : ") + QString::number(simulationTime)
                    + tr("   Error : ") + QString::number(simulationErr) ; 	
    timeLabel->setText(timeLabelString);	
+
+   // choose a picture from file
+   picLabel = new QLabel;
+   // To do: member function to get filename
+   filePath = tr("./dog.ppm");
+   pixmap.load(filePath);
+   picLabel->setPixmap(pixmap);   
 
    QWidget *bottomFiller = new QWidget;
    bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -119,6 +127,10 @@ void SimulationMainWindow2D::runSimulation(){
          fileName = saveFileDir + QString::number(simIterator/50)
                     + saveFileNameExact ;
          simulation->saveSnapShotExactSolution(fileName.toStdString());
+        picture2D = new MyMainWindow(this);
+        picture2D->initialCondition(xGridSize,yGridSize);
+        picture2D->showResult(simulation->returnPhi());
+        picture2D->show();
 
      }
 	  
@@ -179,6 +191,11 @@ void SimulationMainWindow2D::aboutQt(){
 }
 
 void SimulationMainWindow2D::createActions(){
+
+   filePathAct = new QAction(tr("&File Path"),this);
+   filePathAct->setShortcut(tr("Ctrl+O"));
+   connect(filePathAct, SIGNAL(triggered()), this, SLOT(setFilePath()));
+   
 
    exitAct = new QAction(tr("E&xit"), this);
    exitAct->setShortcuts(QKeySequence::Quit);
@@ -257,6 +274,7 @@ void SimulationMainWindow2D::createMenus(){
 	
    fileMenu = menuBar()->addMenu(tr("&File"));
    fileMenu->addSeparator();
+   fileMenu->addAction(filePathAct);
    fileMenu->addAction(exitAct);
 
    SimulationMenu = menuBar()->addMenu(tr("&Simulation"));
@@ -355,3 +373,13 @@ void SimulationMainWindow2D::delay(){
       QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
    }
 }
+
+void SimulationMainWindow2D::setFilePath(){
+   bool status;
+   QString inputFileName = QInputDialog::getText(this, tr("QInputDialog::getText()"),tr("Input File Path:"),QLineEdit::Normal, QDir::home().dirName(), &status);
+   if (status){
+      filePath = inputFileName;
+      restartSimulation();
+   }
+}
+

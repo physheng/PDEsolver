@@ -4,6 +4,7 @@
 
 SimulationMainWindow2D::SimulationMainWindow2D(){
 	
+   menuBar()->setNativeMenuBar(false);
    QWidget *widget = new QWidget;
    setCentralWidget(widget);
    
@@ -126,6 +127,10 @@ void SimulationMainWindow2D::runSimulation(){
          fileName = saveFileDir + QString::number(simIterator/50)
                     + saveFileNameExact ;
          simulation->saveSnapShotExactSolution(fileName.toStdString());
+        picture2D = new MyMainWindow(this);
+        picture2D->initialCondition(xGridSize,yGridSize);
+        picture2D->showResult(simulation->returnPhi());
+        picture2D->show();
 
      }
 	  

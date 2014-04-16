@@ -13,6 +13,7 @@
 using namespace std;
 #include "../FieldsDefinition/Field2DClass.h"
 #include "../Simulation/Simulation2DClass.h"
+#include "./Plot2D.h"
 
 class QAction;
 class QActionGroup;
@@ -124,7 +125,8 @@ private:
    QAction *setForwardEulerAct;
    QAction *setLaxFriedrichsAct;
 
-   QPixmap pixmap;   
+   QPixmap pixmap;
+  MyMainWindow *picture2D;
 };
 
 

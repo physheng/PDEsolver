@@ -42,11 +42,14 @@ bool Field1DClass::initialize( int gridSizeInput, string icName ){
    }
    
    bool status = IC->Initialize(r, Phi, gridSize);
-   status = IC->Initialize(r, initPhi, gridSize);
- 
+   
    if (!status){
       cout << " ERROR: Field could not be initialized." << endl;
-   return false;
+      return false;
+   }
+   
+   for (int i = 0; i < gridSize; i++){
+      initPhi[i] = Phi[i];  
    }
    
    return true;

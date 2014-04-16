@@ -9,9 +9,6 @@ bool InitialConditionClass_RndNoise::Initialize(double r[],
 
    const double PI_CONST = 3.1415926535897932384626433832795028841971693993751058209749;
 
-   std::default_random_engine generator;
-   std::uniform_real_distribution<double> distribution(0.0,2.0*PI_CONST);
-
    for (int i = 0; i < gridSize; i++){
        r[i] = (double)i * 2. * PI_CONST / (double)(gridSize) + \
               1.0 * PI_CONST / (double)(gridSize);
@@ -19,7 +16,7 @@ bool InitialConditionClass_RndNoise::Initialize(double r[],
    }
 
    for (int iFreq = 0; iFreq < freq; iFreq++){
-      rndPhase = distribution(generator);
+      rndPhase = (float)(rand()%1000) / 1000.0 * 2.0 * PI_CONST;
       for (int i = 0; i < gridSize; i++){
          Phi[i] += sin( (double)iFreq * r[i] + rndPhase );
       }

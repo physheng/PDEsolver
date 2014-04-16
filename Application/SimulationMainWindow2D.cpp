@@ -58,15 +58,16 @@ SimulationMainWindow2D::SimulationMainWindow2D(){
    resize(720, 480);
 
    // Default values
-   xGridSize = 200;
-   yGridSize = 400;
+   xGridSize = 100;
+   yGridSize = 200;
 
    delaySecond = 0.5;
+   realizationTimeStep = 10;
 
    gridSize  = xGridSize * yGridSize;
 
    vx = 1.0;
-   vy = 1.0;
+   vy = -1.0;
 
    mainSolverName = "RK4";
    fluxSolverName = "LinearReconstruction";
@@ -109,7 +110,7 @@ void SimulationMainWindow2D::runSimulation(){
 
       QApplication::processEvents();
 
-      if ( simIterator%50 == 0 ){
+      if ( simIterator%realizationTimeStep == 0 ){
 
          simulationTime = simulation->getActualTime();
          simulationErr  = simulation->calcErrorNorm();
@@ -119,18 +120,21 @@ void SimulationMainWindow2D::runSimulation(){
          timeLabel->setText(timeLabelString);
 
          // Saving data into file
-         fileName = saveFileDir + QString::number(simIterator/50)
+         fileName = saveFileDir
+                    + QString::number(simIterator/realizationTimeStep)
                     + saveFileNameField ;
          simulation->saveSnapShot(fileName.toStdString());
 
          // Saving exact solution into file
-         fileName = saveFileDir + QString::number(simIterator/50)
+         fileName = saveFileDir 
+                    + QString::number(simIterator/realizationTimeStep)
                     + saveFileNameExact ;
          simulation->saveSnapShotExactSolution(fileName.toStdString());
-        picture2D = new MyMainWindow(this);
-        picture2D->initialCondition(xGridSize,yGridSize);
-        picture2D->showResult(simulation->returnPhi());
-        picture2D->show();
+
+         picture2D = new MyMainWindow(this);
+         picture2D->initialCondition(xGridSize,yGridSize);
+         picture2D->showResult(simulation->returnPhi());
+         picture2D->show();
 
      }
 	  
@@ -157,6 +161,8 @@ void SimulationMainWindow2D::restartSimulation(){
    simulationErr  = 0.0;
    simIsRunning   = false;
 
+   cout << "Simulation is restarted" << endl;
+
    infoLabel->setText(tr("Simulation is restarted and ready to run."));
 
    QString timeLabelString = tr("Time : ") + QString::number(simulationTime)
@@ -174,7 +180,11 @@ void SimulationMainWindow2D::restartSimulation(){
                    + tr(" - X Grid Size: ")
                    + QString::number(xGridSize) 
                    + tr(" - Y Grid Size: ")
-                   + QString::number(yGridSize); 	
+                   + QString::number(yGridSize) 	
+                   + tr(" - Vx: ")
+                   + QString::number(vx) 	
+                   + tr(" - Vy: ")
+                   + QString::number(vy); 	
    infoLabel2->setText(infoLabel2String);
 
 }
@@ -227,12 +237,22 @@ void SimulationMainWindow2D::createActions(){
    restartAct->setStatusTip(tr("Restart the simulation"));
    connect(restartAct, SIGNAL(triggered()), this, SLOT(restartSimulation()));
 
-   // Input actinos  
+   // Setting Inputs  
+   velocityXAct = new QAction(tr("&Velocity (Vx)"), this);
+   connect(velocityXAct, SIGNAL(triggered()), this, SLOT(setVelocityX()));
+
+   velocityYAct = new QAction(tr("&Velocity (Vy)"), this);
+   connect(velocityYAct, SIGNAL(triggered()), this, SLOT(setVelocityY()));
+
    toleranceAct = new QAction(tr("&Error Tolerance"), this);
    connect(toleranceAct, SIGNAL(triggered()), this, SLOT(setTolerance()));
 
    delaySecAct = new QAction(tr("&Animation Delay"), this);
    connect(delaySecAct, SIGNAL(triggered()), this, SLOT(setDelaySec()));
+
+   realizationTimeStepAct = new QAction(tr("&Realization Time Step"), this);
+   connect(realizationTimeStepAct, SIGNAL(triggered()),
+           this, SLOT(setRealizationTimeStep()));
 
    // Setting the initial condition
   
@@ -283,9 +303,12 @@ void SimulationMainWindow2D::createMenus(){
    SimulationMenu->addAction(restartAct);
 
    InputMenu = menuBar()->addMenu(tr("&Input"));
+   InputMenu->addAction(velocityXAct);
+   InputMenu->addAction(velocityYAct);
    InputMenu->addAction(toleranceAct);
    InputMenu->addAction(delaySecAct);
-   
+   InputMenu->addAction(realizationTimeStepAct);
+
    fluxSolverMenu = InputMenu->addMenu(tr("&Flux Solver"));
    fluxSolverMenu->addSeparator()->setText(tr("Alignment"));
    fluxSolverMenu->addAction(setLinearReconstructionAct);
@@ -359,9 +382,39 @@ void SimulationMainWindow2D::setDelaySec(){
    bool ok;
    double delaySecondInput = 
                QInputDialog::getDouble(this, tr("Get Animation Delay Time"),
-                       tr("Delay (in second):"), 0.5, 0.1, 10, 1, &ok);
+                       tr("Delay (in second):"), 0.5, 0.01, 10, 2, &ok);
    if ( ok ){
       delaySecond = delaySecondInput;
+   }
+}
+
+void SimulationMainWindow2D::setVelocityX(){
+   bool ok;
+   double vxInput = QInputDialog::getDouble(this, tr("Get The Velocity"),
+                       tr("Vx:"), 1.0, -5.0, 5.0, 2, &ok);
+   if ( ok ){
+      vx = vxInput;
+      restartSimulation();
+   }
+}
+
+void SimulationMainWindow2D::setVelocityY(){
+   bool ok;
+   double vyInput = QInputDialog::getDouble(this, tr("Get The Velocity"),
+                       tr("Vy:"), 1.0, -5.0, 5.0, 2, &ok);
+   if ( ok ){
+      vy = -vyInput;
+      restartSimulation();
+   }
+}
+
+void SimulationMainWindow2D::setRealizationTimeStep(){
+   bool ok;
+   int inputVal = QInputDialog::getInt(this, tr("Get Grid Size"),
+                               tr("Grid Size:"), 10, 1, 2000, 10, &ok);
+   if ( ok ){
+      realizationTimeStep = inputVal;
+      restartSimulation();
    }
 }
 

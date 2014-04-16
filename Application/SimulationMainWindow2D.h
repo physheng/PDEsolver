@@ -39,13 +39,19 @@ private slots:
    void about();
    void aboutQt();
 
+   // Simulation modules
    void runSimulation();
    void pauseSimulation();
    void restartSimulation();
 
+   // Input actions for setting the input parameters
+   void setRealizationTimeStep();
    void setTolerance();
    void setDelaySec();
+   void setVelocityX();
+   void setVelocityY();
 
+   // Setting the main (string)
    void setRK4Scheme();
    void setForwardEulerScheme();
    void setLaxFriedrichsScheme();
@@ -79,6 +85,7 @@ private:
    bool simIsRunning;
 
    double delaySecond;
+   int realizationTimeStep;
    ///////////
 
    void createActions();
@@ -116,7 +123,10 @@ private:
    // Input Parameters
    QAction *toleranceAct;
    QAction *delaySecAct;
-       
+   QAction *velocityXAct;
+   QAction *velocityYAct;
+   QAction *realizationTimeStepAct;
+
    // Flux Solver
    QAction *setLinearReconstructionAct;
 

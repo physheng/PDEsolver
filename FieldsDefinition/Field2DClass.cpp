@@ -59,8 +59,8 @@ bool Field2DClass::initialize( int xGridSizeInput, int yGridSizeInput,
 double Field2DClass::returnExactSolution(const double time,
                                          int xIndex, int yIndex) const{
    
-   xIndex = xIndex - (int) (time);
-   yIndex = yIndex - (int) (time);
+   xIndex = xIndex - (int) (vx * time);
+   yIndex = yIndex - (int) (vy * time);
 
    while ( xIndex < 0 ){
       xIndex += xGridSize;   

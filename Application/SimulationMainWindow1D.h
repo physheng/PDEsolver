@@ -69,7 +69,6 @@ private slots:
    void setMUSCLSScheme();
    void setLinearReconstructionScheme();
    void setPiecewiseParabolicReconstructionScheme();
- 
   
 private:
 

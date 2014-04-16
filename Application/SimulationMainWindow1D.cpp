@@ -181,13 +181,14 @@ void SimulationMainWindow1D::restartSimulation(){
                               + QString::fromStdString(fluxSolverName)
                               + tr(" - Grid Size: ")
                               + QString::number(gridSize);
-  infoLabel2->setText(infoLabel2String);
+ 
+   infoLabel2->setText(infoLabel2String);
 
 }
 
 void SimulationMainWindow1D::about(){
-  infoLabel->setText(tr("Invoked <b>Help|About</b>"));
-  QMessageBox::about(this, tr("About Menu"),
+   infoLabel->setText(tr("Invoked <b>Help|About</b>"));
+   QMessageBox::about(this, tr("About Menu"),
                      tr("The <b>Menu</b> example shows how to create "
                         "menu-bar menus and context menus."));
 }
@@ -239,7 +240,8 @@ void SimulationMainWindow1D::createActions(){
    connect(delaySecAct, SIGNAL(triggered()), this, SLOT(setDelaySec()));
   
    realizationTimeStepAct = new QAction(tr("&Realization Time Step"), this);
-   connect(realizationTimeStepAct, SIGNAL(triggered()), this, SLOT(setRealizationTimeStep()));
+   connect(realizationTimeStepAct, SIGNAL(triggered()),
+           this, SLOT(setRealizationTimeStep()));
   
    // Setting the initial condition
    setICSinAct = new QAction(tr("&Sin"), this);
@@ -418,7 +420,7 @@ void SimulationMainWindow1D::setDelaySec(){
    bool ok;
    double delaySecondInput = 
                QInputDialog::getDouble(this, tr("Get Animation Delay Time"),
-                       tr("Delay (in second):"), 0.5, 0.1, 10, 1, &ok);
+                       tr("Delay (in second):"), 0.5, 0.1, 10, 2, &ok);
    if ( ok ){
       delaySecond = delaySecondInput;
    }

@@ -46,8 +46,9 @@ private slots:
    void restartSimulation();
    
    // Input actions for setting the gridSize and error Tolerance
-   void setGridSize();
+   void setRealizationTimeStep();
    void setTolerance();
+   void setGridSize();
    void setDelaySec();
 
    // Initial Condition (string)
@@ -89,6 +90,7 @@ private:
    bool simIsRunning;
 
    double delaySecond;
+   int realizationTimeStep;
    ///////////
 
    void createActions();
@@ -124,7 +126,8 @@ private:
    QAction *gridSizeAct;
    QAction *toleranceAct;
    QAction *delaySecAct;
-     
+   QAction *realizationTimeStepAct;
+    
    // Initial Condition
    QAction *setICSinAct;
    QAction *setICStepAct;

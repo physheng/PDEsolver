@@ -16,64 +16,200 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->setupUi(this);
   setGeometry(400, 250, 542, 390);
 
-  setWindowTitle("QCustomPlot: "+demoName);
+
   statusBar()->clearMessage();
-//  ui->customPlot->replot();
 }
 
-void MainWindow::setThePlot(string fileName, int gridSize)
+void MainWindow::setThePlot(string fileName, string fileName_ex, int gridSize)
 {
-   QVector<double> x(gridSize), y(gridSize);
-   ifstream inFile;
-   inFile.open(fileName.c_str());
 
-   string sLine;
-   getline(inFile, sLine);
+   setWindowTitle("Numerical and Exact Solution Plot");
+
+   QVector<double> x(gridSize), y(gridSize);
+   QVector<double> x_ex(gridSize), y_ex(gridSize);
+
+   x_hist = new double [gridSize];
+   y_hist = new double [gridSize];
+   y_ex_hist = new double [gridSize];
+
+   ifstream inFile,inFile_ex;
+   double maxX, minX, maxY, minY;
+   maxX = 0;
+   minX = 0;
+   maxY = 0;
+   minY = 0;
+
+   inFile.open(fileName.c_str());
+   inFile_ex.open(fileName_ex.c_str());
+   string firstLine, firstLine_ex;
+   getline(inFile, firstLine);
+   getline(inFile_ex, firstLine_ex);
 
    for (int i = 0; i < gridSize; i++)
    {
       inFile >> x[i];
+      x_hist[i] = x[i];
+      inFile_ex >> x_ex[i];
+      // update the minX
+      if (x[i] < minX)
+      {
+          minX = x[i];
+      }
+      if (x_ex[i] < minX)
+      {
+          minX = x_ex[i];
+      }
+      // update the maxX
+      if (x[i] > maxX)
+      {
+          maxX = x[i];
+      }
+      if (x_ex[i] > maxX)
+      {
+          maxX = x_ex[i];
+      }
+
       inFile >> y[i];
+      y_hist[i] = y[i];
+      inFile_ex >> y_ex[i];
+      y_ex_hist[i] = y_ex[i];
+      // update the minY
+      if (y[i] < minY)
+      {
+          minY = y[i];
+      }
+      if (y_ex[i] < minY)
+      {
+          minY = y_ex[i];
+      }
+      // update the maxY
+      if (y[i] > maxY)
+      {
+          maxY = y[i];
+      }
+      if (y_ex[i] > maxY)
+      {
+          maxY = y_ex[i];
+      }
    }
+   inFile.close();
+   inFile_ex.close();
 
    // create graph and assign data to it:
    ui->customPlot->addGraph();
    ui->customPlot->graph(0)->setData(x, y);
+   ui->customPlot->graph(0)->setName("Numerical solution");
+
+   QPen pen;
+   pen.setColor(QColor(0, 0, 0, 255));
+   ui->customPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
+   ui->customPlot->graph(0)->setPen(pen);
+
+   ui->customPlot->addGraph();
+   ui->customPlot->graph(1)->setData(x_ex, y_ex);
+   ui->customPlot->graph(1)->setName("Exact solution");
+
+   QPen pen_ex;
+   pen_ex.setColor(QColor(192, 192, 192, 255));
+   ui->customPlot->graph(1)->setLineStyle(QCPGraph::lsLine);
+   ui->customPlot->graph(1)->setPen(pen_ex);
+
+   connect(ui->customPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(clickedGraph(QMouseEvent*)));
+
+
    // give the axes some labels:
    ui->customPlot->xAxis->setLabel("r");
    ui->customPlot->yAxis->setLabel("Phi");
    // set axes ranges, so we see all data:
-   ui->customPlot->xAxis->setRange(0, 6.28318);
-   ui->customPlot->yAxis->setRange(-1.5, 1.5);
+   ui->customPlot->xAxis->setRange(minX, maxX);
+   ui->customPlot->yAxis->setRange(minY, maxY);
+   ui->customPlot->setInteraction(QCP::iRangeDrag, true);
+   ui->customPlot->setInteraction(QCP::iRangeZoom, true);
+//   ui->customPlot->setInteraction(QCP::iSelectPlottables, true);
+//   ui->customPlot->setInteraction(QCP::iMultiSelect, true);
+//   ui->customPlot->setInteraction(QCP::iSelectAxes, true);
+//   ui->customPlot->legend->setVisible(true);
+
    ui->customPlot->replot();
 }
 
-//void MainWindow::setupQuadraticDemo(QCustomPlot *customPlot)
-//{
-//  demoName = "Quadratic Demo";
-  // generate some data:
-//  QVector<double> x(gridSize), y(gridSize); // initialize with entries 0..100
-//  for (int i=0; i<101; ++i)
-//  {
-//    x[i] = i/50.0 - 1; // x goes from -1 to 1
-//    y[i] = x[i]*x[i];  // let's plot a quadratic function
-//  }
-//    for (int i=0; i<gridSize; ++i)
-//    {
-//        x[i] = r[i]; // x goes from -1 to 1
-//        y[i] = Phi[i];  // let's plot a quadratic function
-//    }
+void MainWindow::setThePlot_error(string fileName, string fileName_ex, int gridSize)
+{
+   setWindowTitle("Error PLot");
 
-//  // create graph and assign data to it:
-//  customPlot->addGraph();
-//  customPlot->graph(0)->setData(x, y);
-//  // give the axes some labels:
-//  customPlot->xAxis->setLabel("r");
-//  customPlot->yAxis->setLabel("Phi");
-  // set axes ranges, so we see all data:
-//  customPlot->xAxis->setRange(0, 7);
-//  customPlot->yAxis->setRange(-1, 1);
-//}
+   QVector<double> x(gridSize), y(gridSize);
+   QVector<double> x_ex(gridSize), y_ex(gridSize);
+   QVector<double> x_error(gridSize), y_error(gridSize);
+
+   ifstream inFile,inFile_ex;
+   double maxX, minX, maxY, minY;
+   maxX = 0;
+   minX = 0;
+   maxY = 0;
+   minY = 0;
+
+   inFile.open(fileName.c_str());
+   inFile_ex.open(fileName_ex.c_str());
+   string firstLine, firstLine_ex;
+   getline(inFile, firstLine);
+   getline(inFile_ex, firstLine_ex);
+
+   for (int i = 0; i < gridSize; i++)
+   {
+      inFile >> x[i];
+      inFile_ex >> x_ex[i];
+      // update the minX
+      if (x[i] < minX)
+      {
+          minX = x[i];
+      }
+      // update the maxX
+      if (x[i] > maxX)
+      {
+          maxX = x[i];
+      }
+
+      inFile >> y[i];
+      inFile_ex >> y_ex[i];
+      y_error[i] = y[i] - y_ex[i];
+      // update the minY
+      if (y_error[i] < minY)
+      {
+          minY = y_error[i];
+      }
+      // update the maxY
+      if (y_error[i] > maxY)
+      {
+          maxY = y_error[i];
+      }
+   }
+
+   // create graph and assign data to it:
+   ui->customPlot->addGraph();
+   ui->customPlot->graph(0)->setData(x, y_error);
+   ui->customPlot->graph(0)->setName("Error");
+
+   QPen pen;
+   pen.setColor(QColor(255, 0, 0, 255));
+   ui->customPlot->graph()->setLineStyle(QCPGraph::lsLine);
+   ui->customPlot->graph()->setPen(pen);
+
+   // give the axes some labels:
+   ui->customPlot->xAxis->setLabel("r");
+   ui->customPlot->yAxis->setLabel("Phi");
+   // set axes ranges, so we see all data:
+   ui->customPlot->xAxis->setRange(minX, maxX);
+   ui->customPlot->yAxis->setRange(minY, maxY);
+   ui->customPlot->setInteraction(QCP::iRangeDrag, true);
+   ui->customPlot->setInteraction(QCP::iRangeZoom, true);
+   ui->customPlot->setInteraction(QCP::iSelectPlottables, true);
+   ui->customPlot->setInteraction(QCP::iMultiSelect, true);
+   ui->customPlot->setInteraction(QCP::iSelectAxes, true);
+
+//   ui->customPlot->legend->setVisible(true);
+
+   ui->customPlot->replot();
+}
 
 void MainWindow::realtimeDataSlot()
 {
@@ -199,4 +335,44 @@ void MainWindow::allScreenShots()
   fileName.replace(" ", "");
   pm.save("./screenshots/"+fileName);
   qApp->quit();
+}
+
+void MainWindow::clickedGraph(QMouseEvent *event)
+{
+//    customPlot->xAxis->pixelToCoord(mouseEvent->pos().x());
+
+//    QPoint p = event->pos();
+    xPosition = ui->customPlot->xAxis->pixelToCoord(event->pos().x());
+    yPosition = ui->customPlot->yAxis->pixelToCoord(event->pos().y());
+
+    int i = 0;
+    while (xPosition > x_hist[i])
+    {
+        i = i+1;
+    }
+
+    xPosition_dis = x_hist[i];
+    yPosition_dis = y_hist[i];
+    yPosition_ex_dis = y_ex_hist[i];
+    double error_dis = yPosition_dis - yPosition_ex_dis;
+
+    ui->statusBar->showMessage(QString("X: %1; Y(numerical): %2; Y(exact): %3; Error: %4")
+                               .arg(xPosition_dis)
+                               .arg(yPosition_dis)
+                               .arg(yPosition_ex_dis)
+                               .arg(error_dis)
+                               , 0);
+
+    QVector<double> x(2), y(2);
+    x[0] = xPosition_dis;
+    x[1] = xPosition_dis;
+    y[0] = yPosition_dis;
+    y[1] = yPosition_ex_dis;
+
+    ui->customPlot->addGraph();
+    ui->customPlot->graph(2)->setData(x, y);
+    ui->customPlot->graph(2)->setName("Point track");
+    ui->customPlot->graph(2)->setLineStyle(QCPGraph::lsNone);
+//    ui->customPlot->graph(2)->setScatterStyle(QCPScatterStyle::ssSquare);
+    ui->customPlot->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, QPen(Qt::red), QBrush(Qt::white), 10));
 }

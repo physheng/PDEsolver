@@ -52,6 +52,7 @@ SimulationMainWindow1D::SimulationMainWindow1D(){
    // Default Values
    gridSize = 100;
    delaySecond = 0.5;
+   realizationTimeStep = 10;
 
    initialConditionName = "Sin";
   
@@ -96,7 +97,7 @@ void SimulationMainWindow1D::runSimulation(){
    QString saveFileDir       = tr("./output/snapshots/");
    QString saveFileNameField = tr("_Snapshot.txt");
    QString saveFileNameExact = tr("_Ex_Snapshot.txt");
-   QString fileName;
+   QString fileName, fileName_ex;
    string fname;
   
    while ( simIsRunning && simulationErr < simulationErrorTolerance ){
@@ -105,7 +106,7 @@ void SimulationMainWindow1D::runSimulation(){
 
       QApplication::processEvents();
 
-      if ( simIterator%1 == 0 ){
+      if ( simIterator%realizationTimeStep == 0 ){
 
          simulationTime = simulation->getActualTime();
          simulationErr  = simulation->calcErrorNorm();
@@ -115,20 +116,25 @@ void SimulationMainWindow1D::runSimulation(){
          timeLabel->setText(timeLabelString);
 
          // Saving data into file
-         fileName = saveFileDir + QString::number(simIterator/1)
+         fileName = saveFileDir 
+                     + QString::number(simIterator/realizationTimeStep)
                      + saveFileNameField ;
          simulation->saveSnapShot(fileName.toStdString());
 
-         pwSimulation->setThePlot(fileName.toStdString(),gridSize);
+         // Saving exact solution into file
+         fileName_ex = saveFileDir 
+                    + QString::number(simIterator/realizationTimeStep)
+                    + saveFileNameExact ;
+         simulation->saveSnapShotExactSolution(fileName_ex.toStdString());
 
-//         pwSimulation->show();
+
+         pwSimulation->setThePlot(fileName.toStdString(),fileName_ex.toStdString(),gridSize);
          pwSimulation->show();
+
+         pwError->setThePlot_error(fileName.toStdString(),fileName_ex.toStdString(),gridSize);
+         pwError->show();
          delay();
 
-         // Saving exact solution into file
-         fileName = saveFileDir + QString::number(simIterator/1)
-                    + saveFileNameExact ;
-         simulation->saveSnapShotExactSolution(fileName.toStdString());
 
 	  }
 	  
@@ -231,6 +237,9 @@ void SimulationMainWindow1D::createActions(){
 
    delaySecAct = new QAction(tr("&Animation Delay"), this);
    connect(delaySecAct, SIGNAL(triggered()), this, SLOT(setDelaySec()));
+  
+   realizationTimeStepAct = new QAction(tr("&Realization Time Step"), this);
+   connect(realizationTimeStepAct, SIGNAL(triggered()), this, SLOT(setRealizationTimeStep()));
   
    // Setting the initial condition
    setICSinAct = new QAction(tr("&Sin"), this);
@@ -338,6 +347,7 @@ void SimulationMainWindow1D::createMenus(){
    InputMenu->addAction(gridSizeAct);
    InputMenu->addAction(toleranceAct);
    InputMenu->addAction(delaySecAct);
+   InputMenu->addAction(realizationTimeStepAct);
    
    initialConditionMenu = InputMenu->addMenu(tr("&Initial Condition"));
    initialConditionMenu->addAction(setICSinAct);
@@ -414,6 +424,16 @@ void SimulationMainWindow1D::setDelaySec(){
    }
 }
 
+void SimulationMainWindow1D::setRealizationTimeStep(){
+   bool ok;
+   int inputVal = QInputDialog::getInt(this, tr("Get Grid Size"),
+                               tr("Grid Size:"), 10, 1, 2000, 10, &ok);
+   if ( ok ){
+         realizationTimeStep = inputVal;
+      restartSimulation();
+   }
+}
+
 
 // Setting the initial condition
 void SimulationMainWindow1D::setICSin(){
@@ -430,7 +450,6 @@ void SimulationMainWindow1D::setICRndNoise(){
    initialConditionName =  "RndNoise";
    restartSimulation();
 }
-
 
 // Setting the main solver
 void SimulationMainWindow1D::setLaxFriedrichsScheme(){

@@ -56,17 +56,24 @@ bool Field1DClass::initialize( int gridSizeInput, string icName ){
 double Field1DClass::returnExactSolution(const double time, int index) const{
 
    double dx = r[1] - r[0];
-   index = index - (int) (time/dx);
+   int indexp = index - (int) (time/dx);
+   double dxp = (double)index * dx - time - (double)indexp * dx;
+   dxp = -dxp;
 
-   while ( index < 0 ){
-      index += gridSize;   
+   while ( indexp < 0 ){
+      indexp += gridSize;   
    }
 
-   while ( index >= gridSize ){
-      index -= gridSize;   
+   while ( indexp >= gridSize ){
+      indexp -= gridSize;   
    }
    
-   return initPhi[index];
+   if ( indexp != 0 ){
+      return initPhi[indexp] + dxp*(initPhi[indexp-1]-initPhi[indexp])/dx;
+   }
+   else{
+      return initPhi[0] + dxp*(initPhi[gridSize-1]-initPhi[0])/dx;
+   }
 
 }
 

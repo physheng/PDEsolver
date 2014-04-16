@@ -7,7 +7,6 @@
 #include "MainSolverClass.h"
 #include "./FieldsDefinition/Field1DClass.h"
 
-
 namespace Ui {
 class MainWindow;
 }
@@ -28,12 +27,22 @@ private slots:
   void bracketDataSlot();
   void screenShot();
   void allScreenShots();
-  
+  void clickedGraph(QMouseEvent *event);
+
 private:
   Ui::MainWindow *ui;
   QString demoName;
   QTimer dataTimer;
   QCPItemTracer *itemDemoPhaseTracer;
+//  QPoint *p;
+  double xPosition, yPosition;
+  double *x_hist;
+  double *y_hist;
+  double *y_ex_hist;
+
+  double xPosition_dis;
+  double yPosition_dis;
+  double yPosition_ex_dis;
 };
 
 #endif // MAINWINDOW_H

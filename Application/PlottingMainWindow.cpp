@@ -16,14 +16,21 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->setupUi(this);
   setGeometry(400, 250, 542, 390);
 
-  setWindowTitle("QCustomPlot: "+demoName);
+
   statusBar()->clearMessage();
 }
 
 void MainWindow::setThePlot(string fileName, string fileName_ex, int gridSize)
 {
+
+   setWindowTitle("Numerical and Exact Solution Plot");
+
    QVector<double> x(gridSize), y(gridSize);
    QVector<double> x_ex(gridSize), y_ex(gridSize);
+
+   x_hist = new double [gridSize];
+   y_hist = new double [gridSize];
+   y_ex_hist = new double [gridSize];
 
    ifstream inFile,inFile_ex;
    double maxX, minX, maxY, minY;
@@ -41,6 +48,7 @@ void MainWindow::setThePlot(string fileName, string fileName_ex, int gridSize)
    for (int i = 0; i < gridSize; i++)
    {
       inFile >> x[i];
+      x_hist[i] = x[i];
       inFile_ex >> x_ex[i];
       // update the minX
       if (x[i] < minX)
@@ -62,7 +70,9 @@ void MainWindow::setThePlot(string fileName, string fileName_ex, int gridSize)
       }
 
       inFile >> y[i];
+      y_hist[i] = y[i];
       inFile_ex >> y_ex[i];
+      y_ex_hist[i] = y_ex[i];
       // update the minY
       if (y[i] < minY)
       {
@@ -104,6 +114,9 @@ void MainWindow::setThePlot(string fileName, string fileName_ex, int gridSize)
    ui->customPlot->graph(1)->setLineStyle(QCPGraph::lsLine);
    ui->customPlot->graph(1)->setPen(pen_ex);
 
+   connect(ui->customPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(clickedGraph(QMouseEvent*)));
+
+
    // give the axes some labels:
    ui->customPlot->xAxis->setLabel("r");
    ui->customPlot->yAxis->setLabel("Phi");
@@ -112,10 +125,9 @@ void MainWindow::setThePlot(string fileName, string fileName_ex, int gridSize)
    ui->customPlot->yAxis->setRange(minY, maxY);
    ui->customPlot->setInteraction(QCP::iRangeDrag, true);
    ui->customPlot->setInteraction(QCP::iRangeZoom, true);
-   ui->customPlot->setInteraction(QCP::iSelectPlottables, true);
-   ui->customPlot->setInteraction(QCP::iMultiSelect, true);
-   ui->customPlot->setInteraction(QCP::iSelectAxes, true);
-
+//   ui->customPlot->setInteraction(QCP::iSelectPlottables, true);
+//   ui->customPlot->setInteraction(QCP::iMultiSelect, true);
+//   ui->customPlot->setInteraction(QCP::iSelectAxes, true);
 //   ui->customPlot->legend->setVisible(true);
 
    ui->customPlot->replot();
@@ -123,6 +135,8 @@ void MainWindow::setThePlot(string fileName, string fileName_ex, int gridSize)
 
 void MainWindow::setThePlot_error(string fileName, string fileName_ex, int gridSize)
 {
+   setWindowTitle("Error PLot");
+
    QVector<double> x(gridSize), y(gridSize);
    QVector<double> x_ex(gridSize), y_ex(gridSize);
    QVector<double> x_error(gridSize), y_error(gridSize);
@@ -196,8 +210,6 @@ void MainWindow::setThePlot_error(string fileName, string fileName_ex, int gridS
 
    ui->customPlot->replot();
 }
-
-
 
 void MainWindow::realtimeDataSlot()
 {
@@ -323,4 +335,44 @@ void MainWindow::allScreenShots()
   fileName.replace(" ", "");
   pm.save("./screenshots/"+fileName);
   qApp->quit();
+}
+
+void MainWindow::clickedGraph(QMouseEvent *event)
+{
+//    customPlot->xAxis->pixelToCoord(mouseEvent->pos().x());
+
+//    QPoint p = event->pos();
+    xPosition = ui->customPlot->xAxis->pixelToCoord(event->pos().x());
+    yPosition = ui->customPlot->yAxis->pixelToCoord(event->pos().y());
+
+    int i = 0;
+    while (xPosition > x_hist[i])
+    {
+        i = i+1;
+    }
+
+    xPosition_dis = x_hist[i];
+    yPosition_dis = y_hist[i];
+    yPosition_ex_dis = y_ex_hist[i];
+    double error_dis = yPosition_dis - yPosition_ex_dis;
+
+    ui->statusBar->showMessage(QString("X: %1; Y(numerical): %2; Y(exact): %3; Error: %4")
+                               .arg(xPosition_dis)
+                               .arg(yPosition_dis)
+                               .arg(yPosition_ex_dis)
+                               .arg(error_dis)
+                               , 0);
+
+    QVector<double> x(2), y(2);
+    x[0] = xPosition_dis;
+    x[1] = xPosition_dis;
+    y[0] = yPosition_dis;
+    y[1] = yPosition_ex_dis;
+
+    ui->customPlot->addGraph();
+    ui->customPlot->graph(2)->setData(x, y);
+    ui->customPlot->graph(2)->setName("Point track");
+    ui->customPlot->graph(2)->setLineStyle(QCPGraph::lsNone);
+//    ui->customPlot->graph(2)->setScatterStyle(QCPScatterStyle::ssSquare);
+    ui->customPlot->graph(2)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, QPen(Qt::red), QBrush(Qt::white), 10));
 }

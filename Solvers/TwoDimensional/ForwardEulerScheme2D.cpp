@@ -4,7 +4,7 @@ double ForwardEulerScheme2D::Solve(double Phi[], double vx,  double vy){
 
     int i, index;
     double dr = 1.0;
-    double dt = max(vx,vy) * dr/10;
+    double dt = dr/ 5.0 / (max(abs(vx),abs(vy)));
 
     double *flux = new double[yGridSize*(xGridSize+1)+xGridSize*(yGridSize+1)];
     double *rhs  = new double[gridSize];

@@ -26,12 +26,14 @@ SimulationMainWindow2D::SimulationMainWindow2D(){
                    + tr("   Error : ") + QString::number(simulationErr) ; 	
    timeLabel->setText(timeLabelString);	
 
+   
    // choose a picture from file
    picLabel = new QLabel;
    // To do: member function to get filename
    filePath = tr("./dog.ppm");
    pixmap.load(filePath);
    picLabel->setPixmap(pixmap);   
+   
 
    QWidget *bottomFiller = new QWidget;
    bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -67,7 +69,7 @@ SimulationMainWindow2D::SimulationMainWindow2D(){
    gridSize  = xGridSize * yGridSize;
 
    vx = 1.0;
-   vy = -1.0;
+   vy = 1.0;
 
    mainSolverName = "RK4";
    fluxSolverName = "LinearReconstruction";
@@ -184,7 +186,7 @@ void SimulationMainWindow2D::restartSimulation(){
                    + tr(" - Vx: ")
                    + QString::number(vx) 	
                    + tr(" - Vy: ")
-                   + QString::number(vy); 	
+                   + QString::number(-vy); 	
    infoLabel2->setText(infoLabel2String);
 
 }
@@ -206,12 +208,12 @@ void SimulationMainWindow2D::createActions(){
    filePathAct->setShortcut(tr("Ctrl+O"));
    connect(filePathAct, SIGNAL(triggered()), this, SLOT(setFilePath()));
    
-
    exitAct = new QAction(tr("E&xit"), this);
    exitAct->setShortcuts(QKeySequence::Quit);
    exitAct->setStatusTip(tr("Exit the application"));
    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
+   // Help section
    aboutAct = new QAction(tr("&About"), this);
    aboutAct->setStatusTip(tr("Show the application's About box"));
    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
@@ -294,7 +296,7 @@ void SimulationMainWindow2D::createMenus(){
 	
    fileMenu = menuBar()->addMenu(tr("&File"));
    fileMenu->addSeparator();
-   fileMenu->addAction(filePathAct);
+   //fileMenu->addAction(filePathAct);
    fileMenu->addAction(exitAct);
 
    SimulationMenu = menuBar()->addMenu(tr("&Simulation"));
@@ -391,7 +393,7 @@ void SimulationMainWindow2D::setDelaySec(){
 void SimulationMainWindow2D::setVelocityX(){
    bool ok;
    double vxInput = QInputDialog::getDouble(this, tr("Get The Velocity"),
-                       tr("Vx:"), 1.0, -5.0, 5.0, 2, &ok);
+                       tr("Vx:"), 1.0, -5.0, 5.0, 1, &ok);
    if ( ok ){
       vx = vxInput;
       restartSimulation();
@@ -401,7 +403,7 @@ void SimulationMainWindow2D::setVelocityX(){
 void SimulationMainWindow2D::setVelocityY(){
    bool ok;
    double vyInput = QInputDialog::getDouble(this, tr("Get The Velocity"),
-                       tr("Vy:"), 1.0, -5.0, 5.0, 2, &ok);
+                       tr("Vy:"), 1.0, -5.0, 5.0, 1, &ok);
    if ( ok ){
       vy = -vyInput;
       restartSimulation();

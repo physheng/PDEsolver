@@ -26,16 +26,14 @@ class Field2DClass{
       // Return the value of exact solution after time t at point r[index]
       double returnExactSolution(const double time,
                                  int xIndex, int yIndex) const;
-  double *returnPhi()
-  {
-    return Phi;
-  }
+
+      double *returnPhi(){
+         return Phi;
+      }
 
    protected:
    
       double *Phi;
-      double *x;
-      double *y;
 
       // Velocities in x,y direction
       double vx;

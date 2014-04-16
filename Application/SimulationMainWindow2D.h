@@ -38,6 +38,7 @@ private slots:
 
    void about();
    void aboutQt();
+   void setFilePath();
 
    // Simulation modules
    void runSimulation();
@@ -91,7 +92,6 @@ private:
    void createActions();
    void createMenus();
    void createButtons();
-   void setFilePath();
 
    QMenu *fileMenu;
    QMenu *SimulationMenu;
@@ -136,7 +136,7 @@ private:
    QAction *setLaxFriedrichsAct;
 
    QPixmap pixmap;
-  MyMainWindow *picture2D;
+   MyMainWindow *picture2D;
 };
 
 

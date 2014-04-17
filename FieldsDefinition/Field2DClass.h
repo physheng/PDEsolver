@@ -25,13 +25,29 @@ class Field2DClass{
       
       // Return the value of exact solution after time t at point r[index]
       double returnExactSolution(const double time,
-                                 int xIndex, int yIndex) const;
+                                 int xIndex, int yIndex) ;
+
+      double *returnPhi() const {
+         return Phi;
+      }
+  
+  double *returnExactPhi()
+  {
+    int i,j;
+    double *exactPhi = new double[gridSize];
+    for(i=0;i<yGridSize;i++){
+      for(j=0;j<xGridSize;j++){
+        exactPhi[j+i*xGridSize] = returnExactSolution(tempTime, j, i);
+      }
+    }
+    
+    return exactPhi;
+  }
+  
 
    protected:
    
       double *Phi;
-      double *x;
-      double *y;
 
       // Velocities in x,y direction
       double vx;
@@ -45,7 +61,7 @@ class Field2DClass{
       
       // Initial field for calculating the exact solution
       double *initPhi;
-      
+      double tempTime;
 };
 
 

@@ -16,7 +16,7 @@ class Field1DClass{
       ~Field1DClass( void );
 
       // This function initialize the field
-      bool initialize( int gridSizeInput );
+      bool initialize( int gridSizeInput, string icName );
 
       int getGridSize( void ){ return gridSize; }
       

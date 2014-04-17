@@ -55,7 +55,6 @@ void Simulation2DClass::setupSimulation( string mainSolverSchemeName,
    setFluxSolver(fluxSolverSchemeName);
 
    cout << "Simulation did setup correctly" << endl;
-
 }
 
 

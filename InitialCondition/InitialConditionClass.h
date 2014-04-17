@@ -3,6 +3,7 @@
 
 
 #include <cmath>
+//#include <random>
 #include <iostream>
 using namespace std;
 
@@ -11,11 +12,13 @@ class InitialConditionClass{
    public:
 
      virtual bool Initialize(double r[], double Phi[], int gridSize) = 0;
-
+     //virtual ~InitialConditionClass() {}
    private:
 
 };
 
 #include "InitialConditionClass_Sin.h"
+#include "InitialConditionClass_Step.h"
+#include "InitialConditionClass_RndNoise.h"
 
 #endif

@@ -7,14 +7,10 @@ class InitialConditionClass_Sin:public InitialConditionClass{
 
    public:
    
-      InitialConditionClass_Sin(double AMP, int FREQ);
-
       bool Initialize(double r[], double Phi[], int gridSize);
 
    private:
 
-      int freq;
-      double amp;
 
 };
 

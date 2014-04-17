@@ -1,15 +1,10 @@
 #include <QtGui>
 
 #include "SimulationMainWindow2D.h"
-#if QT_VERSION >= 0x050000
-    #include <QtWidgets>
-#endif
-#ifndef QT_NO_PRINTERqt cre
-#include <QPrintDialog>
-#endif
 
 SimulationMainWindow2D::SimulationMainWindow2D(){
 	
+   menuBar()->setNativeMenuBar(false);
    QWidget *widget = new QWidget;
    setCentralWidget(widget);
    
@@ -30,7 +25,7 @@ SimulationMainWindow2D::SimulationMainWindow2D(){
    QString timeLabelString = tr("Time : ") + QString::number(simulationTime)
                    + tr("   Error : ") + QString::number(simulationErr) ; 	
    timeLabel->setText(timeLabelString);	
-
+  
    QWidget *bottomFiller = new QWidget;
    bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -56,23 +51,30 @@ SimulationMainWindow2D::SimulationMainWindow2D(){
    resize(720, 480);
 
    // Default values
+   xGridSize = 100;
+   yGridSize = 200;
 
-   xGridSize = 200;
-   yGridSize = 400;
+   delaySecond = 0.5;
+   realizationTimeStep = 10;
 
    gridSize  = xGridSize * yGridSize;
 
    vx = 1.0;
    vy = 1.0;
 
-   mainSolverName = "LaxFriedrichs";
+   mainSolverName = "RK4";
    fluxSolverName = "LinearReconstruction";
 
    simulationErrorTolerance = 1e-2;
 
    simulation = new Simulation2DClass;
    restartSimulation();
-   
+  
+  // Create 2D plot window
+  picture2D = new Plot2DWindow(this);
+  exactPicture2D = new Plot2DWindow(this);
+
+  
 }
 
 void SimulationMainWindow2D::contextMenuEvent(QContextMenuEvent *event){
@@ -98,6 +100,10 @@ void SimulationMainWindow2D::runSimulation(){
    QString saveFileNameExact = tr("_Ex_Snapshot.txt");
    QString fileName;
    string fname;
+  
+   // Set the picture size
+   picture2D->initialCondition(xGridSize,yGridSize);
+   exactPicture2D->initialCondition(xGridSize,yGridSize);
 
    while ( simIsRunning && simulationErr < simulationErrorTolerance ){
 
@@ -106,7 +112,7 @@ void SimulationMainWindow2D::runSimulation(){
 
       QApplication::processEvents();
 
-      if ( simIterator%50 == 0 ){
+      if ( simIterator%realizationTimeStep == 0 ){
 
          simulationTime = simulation->getActualTime();
          simulationErr  = simulation->calcErrorNorm();
@@ -116,14 +122,24 @@ void SimulationMainWindow2D::runSimulation(){
          timeLabel->setText(timeLabelString);
 
          // Saving data into file
-         fileName = saveFileDir + QString::number(simIterator/50)
+         fileName = saveFileDir
+                    + QString::number(simIterator/realizationTimeStep)
                     + saveFileNameField ;
          simulation->saveSnapShot(fileName.toStdString());
 
          // Saving exact solution into file
-         fileName = saveFileDir + QString::number(simIterator/50)
+         fileName = saveFileDir 
+                    + QString::number(simIterator/realizationTimeStep)
                     + saveFileNameExact ;
          simulation->saveSnapShotExactSolution(fileName.toStdString());
+
+        picture2D->showResult(simulation->returnPhi());
+        picture2D->show();
+        picture2D->repaint();
+        exactPicture2D->showError(simulation->returnExactPhi(),simulation->returnPhi());
+        //exactPicture2D->showResult(simulation->returnExactPhi());
+        exactPicture2D->show();
+        exactPicture2D->repaint();
 
      }
 	  
@@ -145,10 +161,15 @@ void SimulationMainWindow2D::pauseSimulation(){
 
 void SimulationMainWindow2D::restartSimulation(){
 
+   //picture2D->close();
+   //exactPicture2D->close();
+   
    simIterator    = 0;
    simulationTime = 0.0;
    simulationErr  = 0.0;
    simIsRunning   = false;
+
+   cout << "Simulation is restarted" << endl;
 
    infoLabel->setText(tr("Simulation is restarted and ready to run."));
 
@@ -164,12 +185,14 @@ void SimulationMainWindow2D::restartSimulation(){
 
    QString infoLabel2String = tr("Main Solver Scheme: ")
                    + QString::fromStdString(mainSolverName)
-                   //+ tr(" - Flux Solver Scheme: ")
-                   //+ QString::fromStdString(fluxSolverName) 
                    + tr(" - X Grid Size: ")
                    + QString::number(xGridSize) 
                    + tr(" - Y Grid Size: ")
-                   + QString::number(yGridSize); 	
+                   + QString::number(yGridSize) 	
+                   + tr(" - Vx: ")
+                   + QString::number(vx) 	
+                   + tr(" - Vy: ")
+                   + QString::number(-vy); 	
    infoLabel2->setText(infoLabel2String);
 
 }
@@ -186,17 +209,17 @@ void SimulationMainWindow2D::aboutQt(){
 }
 
 void SimulationMainWindow2D::createActions(){
-  //MG added
-   openAct = new QAction(tr("&Open..."), this);
-   openAct->setShortcuts(QKeySequence::Open);
-   openAct->setStatusTip(tr("Open an existing file"));
-   connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
+   filePathAct = new QAction(tr("&File Path"),this);
+   filePathAct->setShortcut(tr("Ctrl+O"));
+   connect(filePathAct, SIGNAL(triggered()), this, SLOT(setFilePath()));
+   
    exitAct = new QAction(tr("E&xit"), this);
    exitAct->setShortcuts(QKeySequence::Quit);
    exitAct->setStatusTip(tr("Exit the application"));
    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
+   // Help section
    aboutAct = new QAction(tr("&About"), this);
    aboutAct->setStatusTip(tr("Show the application's About box"));
    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
@@ -206,13 +229,7 @@ void SimulationMainWindow2D::createActions(){
    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
    connect(aboutQtAct, SIGNAL(triggered()), this, SLOT(aboutQt()));
 
-   alignmentGroup = new QActionGroup(this);
-   //alignmentGroup->addAction(leftAlignAct);
-   //alignmentGroup->addAction(rightAlignAct);
-   //alignmentGroup->addAction(justifyAct);
-   //alignmentGroup->addAction(centerAct);
-   //leftAlignAct->setChecked(true);
-
+   // Simulation actions
    runAct = new QAction(tr("&Run"), this);
    runAct->setShortcut(tr("Ctrl+Alt+R"));
    runAct->setStatusTip(tr("Running the simulation"));
@@ -228,19 +245,87 @@ void SimulationMainWindow2D::createActions(){
    restartAct->setStatusTip(tr("Restart the simulation"));
    connect(restartAct, SIGNAL(triggered()), this, SLOT(restartSimulation()));
 
+   // Setting Inputs  
+   velocityXAct = new QAction(tr("&Velocity (Vx)"), this);
+   connect(velocityXAct, SIGNAL(triggered()), this, SLOT(setVelocityX()));
+
+   velocityYAct = new QAction(tr("&Velocity (Vy)"), this);
+   connect(velocityYAct, SIGNAL(triggered()), this, SLOT(setVelocityY()));
+
+   toleranceAct = new QAction(tr("&Error Tolerance"), this);
+   connect(toleranceAct, SIGNAL(triggered()), this, SLOT(setTolerance()));
+
+   delaySecAct = new QAction(tr("&Animation Delay"), this);
+   connect(delaySecAct, SIGNAL(triggered()), this, SLOT(setDelaySec()));
+
+   realizationTimeStepAct = new QAction(tr("&Realization Time Step"), this);
+   connect(realizationTimeStepAct, SIGNAL(triggered()),
+           this, SLOT(setRealizationTimeStep()));
+
+   // Setting the initial condition
+  
+   // Setting main solver
+   setLaxFriedrichsAct = new QAction(tr("Lax-FriedRichs Scheme"), this);
+   setLaxFriedrichsAct->setCheckable(true);
+   connect(setLaxFriedrichsAct, SIGNAL(triggered()), this,
+            SLOT(setLaxFriedrichsScheme()));
+
+   setRK4Act = new QAction(tr("RK4 Scheme"), this);
+   setRK4Act->setCheckable(true);
+   connect(setRK4Act, SIGNAL(triggered()), this,SLOT(setRK4Scheme()));
+
+   setForwardEulerAct = new QAction(tr("Forward Euler Scheme"), this);
+   setForwardEulerAct->setCheckable(true);
+   connect(setForwardEulerAct, SIGNAL(triggered()), this,
+            SLOT(setForwardEulerScheme()));
+   
+   solverGroup = new QActionGroup(this);
+   solverGroup->addAction(setForwardEulerAct);
+   solverGroup->addAction(setLaxFriedrichsAct);
+   solverGroup->addAction(setRK4Act);
+   setRK4Act->setChecked(true);
+ 
+   // Setting flux solver
+   setLinearReconstructionAct = 
+             new QAction(tr("Linear Reconstruction Scheme"), this);
+   setLinearReconstructionAct->setCheckable(true);
+   connect(setLinearReconstructionAct, SIGNAL(triggered()), this,
+             SLOT(setLinearReconstructionScheme()));
+
+   fluxGroup = new QActionGroup(this);
+   fluxGroup->addAction(setLinearReconstructionAct);
+   setLinearReconstructionAct->setChecked(true);
+
 }
 
 void SimulationMainWindow2D::createMenus(){
 	
    fileMenu = menuBar()->addMenu(tr("&File"));
    fileMenu->addSeparator();
-   fileMenu->addAction(openAct);
+   //fileMenu->addAction(filePathAct);
    fileMenu->addAction(exitAct);
 
    SimulationMenu = menuBar()->addMenu(tr("&Simulation"));
    SimulationMenu->addAction(runAct);
    SimulationMenu->addAction(pauseAct);
    SimulationMenu->addAction(restartAct);
+
+   InputMenu = menuBar()->addMenu(tr("&Input"));
+   InputMenu->addAction(velocityXAct);
+   InputMenu->addAction(velocityYAct);
+   InputMenu->addAction(toleranceAct);
+   InputMenu->addAction(delaySecAct);
+   InputMenu->addAction(realizationTimeStepAct);
+
+   fluxSolverMenu = InputMenu->addMenu(tr("&Flux Solver"));
+   fluxSolverMenu->addSeparator()->setText(tr("Alignment"));
+   fluxSolverMenu->addAction(setLinearReconstructionAct);
+   fluxSolverMenu->addSeparator();
+ 
+   mainSolverMenu = InputMenu->addMenu(tr("&Main Solver"));
+   mainSolverMenu->addAction(setRK4Act);
+   mainSolverMenu->addAction(setForwardEulerAct);
+   mainSolverMenu->addAction(setLaxFriedrichsAct);
 
    helpMenu = menuBar()->addMenu(tr("&Help"));
    helpMenu->addAction(aboutAct);
@@ -262,39 +347,97 @@ void SimulationMainWindow2D::createButtons(){
    QPushButton *restartButton = new QPushButton("&Restart", this);
    restartButton->setGeometry(QRect(QPoint(10, 120), QSize(80, 30)));
    connect(restartButton, SIGNAL(clicked()), this, SLOT(restartSimulation())); 
-
-    // MG added
-    imageLabel = new QLabel(this);
-    imageLabel->setBackgroundRole(QPalette::Base);
-    imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    imageLabel->setScaledContents(true);
-    QImage image("Capture.PNG");
-    if (image.isNull()) {
-        QMessageBox::information(this, tr("Image Viewer"),
-                                 tr("Cannot load "));
-        return;
-    }
-    else
-    imageLabel->setPixmap(QPixmap::fromImage(image));
-    imageLabel->setGeometry(QRect(QPoint(170, 40),
-                                     QSize(500, 150)));
    
 }
 
-// MG added
-void SimulationMainWindow2D::open(){
-    infoLabel->setText(tr("Invoked <b>File|Open</b>"));
 
-    QString fileName = QFileDialog::getOpenFileName(this,
-                                                    tr("Open File"), QDir::currentPath());
-    if (!fileName.isEmpty()) {
-           QImage image(fileName);
-           if (image.isNull()) {
-               QMessageBox::information(this, tr("Image Viewer"),
-                                        tr("Cannot load %1.").arg(fileName));
-               return;
-           }
-           imageLabel->setPixmap(QPixmap::fromImage(image));
-    }
-    
+// Setting the main solver
+void SimulationMainWindow2D::setLaxFriedrichsScheme(){
+   mainSolverName =  "LaxFriedrichs";
+   restartSimulation();
 }
+
+void SimulationMainWindow2D::setRK4Scheme(){
+   mainSolverName =  "RK4";
+   restartSimulation();
+}
+
+void SimulationMainWindow2D::setForwardEulerScheme(){
+   mainSolverName =  "ForwardEuler";
+   restartSimulation();
+}
+
+
+// Setting the flux solver
+void SimulationMainWindow2D::setLinearReconstructionScheme(){
+   fluxSolverName =  "LinearReconstruction";
+   restartSimulation();
+}
+
+
+// Setting inputs
+void SimulationMainWindow2D::setTolerance(){
+   bool ok;
+   double errorToleranceInput = 
+               QInputDialog::getDouble(this, tr("Get Error Tolerance"),
+                       tr("Error Tolerance:"), 0.1, 0.0001, 10, 4, &ok);
+   if ( ok ){
+      simulationErrorTolerance = errorToleranceInput;
+   }
+}
+
+void SimulationMainWindow2D::setDelaySec(){
+   bool ok;
+   double delaySecondInput = 
+               QInputDialog::getDouble(this, tr("Get Animation Delay Time"),
+                       tr("Delay (in second):"), 0.5, 0.01, 10, 2, &ok);
+   if ( ok ){
+      delaySecond = delaySecondInput;
+   }
+}
+
+void SimulationMainWindow2D::setVelocityX(){
+   bool ok;
+   double vxInput = QInputDialog::getDouble(this, tr("Get The Velocity"),
+                       tr("Vx:"), 1.0, -5.0, 5.0, 1, &ok);
+   if ( ok ){
+      vx = vxInput;
+      restartSimulation();
+   }
+}
+
+void SimulationMainWindow2D::setVelocityY(){
+   bool ok;
+   double vyInput = QInputDialog::getDouble(this, tr("Get The Velocity"),
+                       tr("Vy:"), 1.0, -5.0, 5.0, 1, &ok);
+   if ( ok ){
+      vy = -vyInput;
+      restartSimulation();
+   }
+}
+
+void SimulationMainWindow2D::setRealizationTimeStep(){
+   bool ok;
+   int inputVal = QInputDialog::getInt(this, tr("Get Grid Size"),
+                               tr("Grid Size:"), 10, 1, 2000, 10, &ok);
+   if ( ok ){
+      realizationTimeStep = inputVal;
+      restartSimulation();
+   }
+}
+
+
+// Delay function
+void SimulationMainWindow2D::delay(){
+   QTime dieTime= QTime::currentTime().addMSecs(1000.0*delaySecond);
+   while( QTime::currentTime() < dieTime ){
+      QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+   }
+}
+
+void SimulationMainWindow2D::setFilePath(){
+  QString inputFileName = QFileDialog::getOpenFileName(this, tr("Open Image"), ".", tr("Image Files(*.png *.jpg *.bmp)"));
+  filePath = inputFileName;
+  restartSimulation();
+}
+

@@ -5,9 +5,22 @@ void FluxCalculatorPiecewiseParabolicReconstructionScheme::calcFlux(
                const int gridSize){
 
     int i;
-    double ur, ul, ri, FluxLimiter;
+   //double ur, ul, ri;
+   double FluxLimiter;
 
 
+    for (i = 1; i < gridSize; i++){
+       //ri = (Phi[i-1] - Phi[i-2]) / (Phi[i] - Phi[i-1]);
+       FluxLimiter = 1.0;//max(0.0,min(1.0,ri));
+       Flux[i] = - 0.5 * (Phi[i-1] + Phi[i]) - 0.5 * // 0.2 is the dt/dx
+            (1.0 - FluxLimiter * (1.0 - 0.2 )) * (Phi[i] - Phi[i-1]);
+    }
+    FluxLimiter = 1.0;//max(0.0,min(1.0,ri));
+    Flux[0] = - 0.5 * (Phi[gridSize-1] + Phi[0]) - 0.5 * // 0.2 is the dt/dx
+            (1.0 - FluxLimiter * (1.0 - 0.2 )) * (Phi[0] - Phi[gridSize-1]);
+    Flux[gridSize] = Flux[0];
+
+    /*
     for (i = 2; i < gridSize; i++){
        ri = (Phi[i-1] - Phi[i-2]) / (Phi[i] - Phi[i-1]);
        FluxLimiter = max(0.0,min(1.0,ri));//2. * ri / ( 1. + ri * ri);
@@ -51,6 +64,6 @@ void FluxCalculatorPiecewiseParabolicReconstructionScheme::calcFlux(
     Flux[gridSize-1] +=  -0.5 * ur;
 
     Flux[gridSize] = Flux[0];
-
+    */
 }
 

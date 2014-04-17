@@ -14,6 +14,7 @@ class FluxCalculatorClass{
                             const double Phi[],
                             double Flux[],
                             const int gridSize) = 0;
+   virtual ~FluxCalculatorClass(){}
 
    private:
 

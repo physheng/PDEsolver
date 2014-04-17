@@ -22,7 +22,8 @@ public:
   
   void setThePlot(string fileName, string fileName_ex, int gridSize);
   void setThePlot_error(string fileName, string fileName_ex, int gridSize);
-
+  
+  
 private slots:
   void clickedGraph(QMouseEvent *event);
 

@@ -20,6 +20,7 @@ class Plot2DWindow:public QMainWindow
       explicit Plot2DWindow(QWidget *parent = 0);
       bool initialCondition(int width, int height);
       void showResult(double* Phi);
+      void showError(double* ExactPhi, double* NumericalPhi);
       ~Plot2DWindow();
    
    private:
@@ -29,6 +30,7 @@ class Plot2DWindow:public QMainWindow
       QImage *image;
       QPainter *paint;
       void paintEvent(QPaintEvent *);
+  double max_ele, min_ele;
    
 };
 #endif

@@ -79,14 +79,7 @@ void SimulationMainWindow1D::contextMenuEvent(QContextMenuEvent *event){
 }
 
 void SimulationMainWindow1D::runSimulation(){
-
-//   pwSimulation->show();
-//   pwError->show();
-
-   //delete pw; 
-   //MainWindow pw = new MainWindow(this);
-   //pw.show();
-    
+  
    simIsRunning = true;
    simulationTime = simulation->getActualTime();
    simulationErr  = simulation->calcErrorNorm();
@@ -127,14 +120,11 @@ void SimulationMainWindow1D::runSimulation(){
                     + saveFileNameExact ;
          simulation->saveSnapShotExactSolution(fileName_ex.toStdString());
 
-
          pwSimulation->setThePlot(fileName.toStdString(),fileName_ex.toStdString(),gridSize);
          pwSimulation->show();
-
          pwError->setThePlot_error(fileName.toStdString(),fileName_ex.toStdString(),gridSize);
          pwError->show();
          delay();
-
 
 	  }
 	  
@@ -489,8 +479,6 @@ void SimulationMainWindow1D::setForwardEulerScheme(){
    restartSimulation();
 }
 
-
-
 // Setting the flux solver
 void SimulationMainWindow1D::setMUSCLSScheme(){
    fluxSolverName =  "MUSCLS";
@@ -506,7 +494,6 @@ void SimulationMainWindow1D::setPiecewiseParabolicReconstructionScheme(){
    fluxSolverName =  "PiecewiseParabolicReconstruction";
    restartSimulation();
 }
-
 
 // Delay function
 void SimulationMainWindow1D::delay(){

@@ -135,9 +135,10 @@ private:
    QAction *setForwardEulerAct;
    QAction *setLaxFriedrichsAct;
 
-   QPixmap pixmap;
-   MyMainWindow *picture2D;
-};
+  Plot2DWindow *picture2D;
+  Plot2DWindow *exactPicture2D;
+
+ };
 
 
 #endif

@@ -25,16 +25,7 @@ SimulationMainWindow2D::SimulationMainWindow2D(){
    QString timeLabelString = tr("Time : ") + QString::number(simulationTime)
                    + tr("   Error : ") + QString::number(simulationErr) ; 	
    timeLabel->setText(timeLabelString);	
-
-   
-   // choose a picture from file
-   picLabel = new QLabel;
-   // To do: member function to get filename
-   filePath = tr("./dog.ppm");
-   pixmap.load(filePath);
-   picLabel->setPixmap(pixmap);   
-   
-
+  
    QWidget *bottomFiller = new QWidget;
    bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -78,7 +69,12 @@ SimulationMainWindow2D::SimulationMainWindow2D(){
 
    simulation = new Simulation2DClass;
    restartSimulation();
-   
+  
+  // Create 2D plot window
+  picture2D = new Plot2DWindow(this);
+  exactPicture2D = new Plot2DWindow(this);
+
+  
 }
 
 void SimulationMainWindow2D::contextMenuEvent(QContextMenuEvent *event){
@@ -104,6 +100,10 @@ void SimulationMainWindow2D::runSimulation(){
    QString saveFileNameExact = tr("_Ex_Snapshot.txt");
    QString fileName;
    string fname;
+  
+   // Set the picture size
+   picture2D->initialCondition(xGridSize,yGridSize);
+   exactPicture2D->initialCondition(xGridSize,yGridSize);
 
    while ( simIsRunning && simulationErr < simulationErrorTolerance ){
 
@@ -133,10 +133,11 @@ void SimulationMainWindow2D::runSimulation(){
                     + saveFileNameExact ;
          simulation->saveSnapShotExactSolution(fileName.toStdString());
 
-         picture2D = new MyMainWindow(this);
-         picture2D->initialCondition(xGridSize,yGridSize);
-         picture2D->showResult(simulation->returnPhi());
-         picture2D->show();
+        picture2D->showResult(simulation->returnPhi());
+        picture2D->show();
+        
+        exactPicture2D->showResult(simulation->returnExactPhi());
+        exactPicture2D->show();
 
      }
 	  
@@ -430,11 +431,8 @@ void SimulationMainWindow2D::delay(){
 }
 
 void SimulationMainWindow2D::setFilePath(){
-   bool status;
-   QString inputFileName = QInputDialog::getText(this, tr("QInputDialog::getText()"),tr("Input File Path:"),QLineEdit::Normal, QDir::home().dirName(), &status);
-   if (status){
-      filePath = inputFileName;
-      restartSimulation();
-   }
+  QString inputFileName = QFileDialog::getOpenFileName(this, tr("Open Image"), ".", tr("Image Files(*.png *.jpg *.bmp)"));
+  filePath = inputFileName;
+  restartSimulation();
 }
 

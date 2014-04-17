@@ -1,21 +1,40 @@
 #include <algorithm>
 
 #include "Plot2D.h"
+#include "ui_Plot2DWindow.h"
 #include <QtGui>
+#include <iostream>
 
 using namespace std;
 
-void MyMainWindow::paintEvent(QPaintEvent *)
+Plot2DWindow::Plot2DWindow(QWidget *parent):QMainWindow(parent),ui(new Ui::Plot2DWindow)
+{
+   ui->setupUi(this);
+   paint = new QPainter;
+}
+
+Plot2DWindow::~Plot2DWindow()
+{
+   delete phiMatrix;
+   delete image;
+   delete paint;
+   delete ui;
+   cout << "Freeing mem" << endl;
+}
+
+void Plot2DWindow::paintEvent(QPaintEvent *)
 {
    int R, G, B;
-   int i=0,j=0;
+   int i = 0,j = 0;
    double max_ele, min_ele;
+   // Get min and max value from the Phi Matrix
    max_ele = *(std::max_element(phiMatrix, phiMatrix+picWidth*picHeight));
    min_ele = *(std::min_element(phiMatrix, phiMatrix+picWidth*picHeight));
    
-   paint= new QPainter;
+   //paint = new QPainter;
    paint->begin(this);
    
+   // Set Image width, height and color to RGB2555
    image = new QImage(picWidth,picHeight,QImage::Format_ARGB32_Premultiplied);
    QRgb value;
    
@@ -24,34 +43,27 @@ void MyMainWindow::paintEvent(QPaintEvent *)
       for(j=0;j<picWidth;j++)
       {
          R = (int)((phiMatrix[j+i*picWidth]-min_ele)/(max_ele-min_ele)*255);
-         G = 255-R;
-         B = abs(128-R);
+         G = 255 - R;
+         B = abs(128 - R);
          value = qRgb(R, G, B);
          image->setPixel(j, i, value);
       }
    }
-   
+   //image->scaled(200,200, Qt::IgnoreAspectRatio);
    paint->drawImage(50,50, *image);
    paint->end();
    
 }
 
-
-MyMainWindow::MyMainWindow(QWidget *parent):QWidget(parent)
-{
-   setGeometry(200,0,1000,1000);
-}
-
-bool MyMainWindow::initialCondition(int width, int height)
+bool Plot2DWindow::initialCondition(int width, int height)
 {
    picWidth = width;
    picHeight = height;
    return true;
 }
 
-void MyMainWindow::showResult(double Phi[])
+void Plot2DWindow::showResult(double *Phi)
 {
    phiMatrix = Phi;
 }
-
 

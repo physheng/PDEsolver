@@ -1,32 +1,29 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef PLOT1D_CLASS_
+#define PLOT1D_CLASS_
 
 #include <QMainWindow>
 #include <QTimer>
 #include "./QCustomPlot/qcustomplot.h" 
 #include "MainSolverClass.h"
 #include "./FieldsDefinition/Field1DClass.h"
+#include "Plot1D.h"
 
 namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow
+class Plot1D : public QMainWindow
 {
   Q_OBJECT
-  
+
 public:
-  explicit MainWindow(QWidget *parent = 0);
-  ~MainWindow();
+  explicit Plot1D(QWidget *parent = 0);
+  ~Plot1D();
   
   void setThePlot(string fileName, string fileName_ex, int gridSize);
   void setThePlot_error(string fileName, string fileName_ex, int gridSize);
 
 private slots:
-  void realtimeDataSlot();
-  void bracketDataSlot();
-  void screenShot();
-  void allScreenShots();
   void clickedGraph(QMouseEvent *event);
 
 private:
@@ -34,7 +31,7 @@ private:
   QString demoName;
   QTimer dataTimer;
   QCPItemTracer *itemDemoPhaseTracer;
-//  QPoint *p;
+
   double xPosition, yPosition;
   double *x_hist;
   double *y_hist;
@@ -45,4 +42,4 @@ private:
   double yPosition_ex_dis;
 };
 
-#endif // MAINWINDOW_H
+#endif // PLOT1D_CLASS_

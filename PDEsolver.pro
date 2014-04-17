@@ -30,7 +30,7 @@ INCLUDEPATH += . \
 # Input
 HEADERS += constants.h \
            Application/Plot2D.h \
-           Application/PlottingMainWindow.h \
+           Application/Plot1D.h \
            Application/SimulationMainWindow.h \
            Application/SimulationMainWindow1D.h \
            Application/SimulationMainWindow2D.h \
@@ -68,7 +68,7 @@ HEADERS += constants.h \
            Solvers/TwoDimensional/FluxSolvers/FluxCalculatorClassLinearReconstructionScheme2D.h
 SOURCES += main.cpp \
            Application/Plot2D.cpp \
-           Application/PlottingMainWindow.cpp \
+           Application/Plot1D.cpp \
            Application/SimulationMainWindow.cpp \
            Application/SimulationMainWindow1D.cpp \
            Application/SimulationMainWindow2D.cpp \

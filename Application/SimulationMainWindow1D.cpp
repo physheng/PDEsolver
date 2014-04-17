@@ -62,8 +62,8 @@ SimulationMainWindow1D::SimulationMainWindow1D(){
    simulationErrorTolerance = 1e-1;
   
    // Plotting windows
-   pwSimulation = new MainWindow(this);
-   pwError = new MainWindow(this);
+   pwSimulation = new Plot1D(this);
+   pwError = new Plot1D(this);
 
    simulation = new Simulation1DClass;
    restartSimulation();

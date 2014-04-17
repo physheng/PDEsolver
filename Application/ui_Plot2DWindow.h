@@ -10,9 +10,9 @@ class Ui_Plot2DWindow
 public:
     void setupUi(QMainWindow *Plot2DWindow)
     {
-        Plot2DWindow->setWindowTitle(("PDE simulation 2D Plot"));
-        Plot2DWindow->setMinimumSize(480, 320);
-        Plot2DWindow->setGeometry(200, 200,720, 480);
+        //Plot2DWindow->setWindowTitle(("PDE simulation 2D Plot"));
+        //Plot2DWindow->setMinimumSize(480, 320);
+        //Plot2DWindow->setGeometry(200, 200,720, 480);
     } // setupUi
 };
 

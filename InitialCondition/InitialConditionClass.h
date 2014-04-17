@@ -12,7 +12,7 @@ class InitialConditionClass{
    public:
 
      virtual bool Initialize(double r[], double Phi[], int gridSize) = 0;
-
+     //virtual ~InitialConditionClass() {}
    private:
 
 };

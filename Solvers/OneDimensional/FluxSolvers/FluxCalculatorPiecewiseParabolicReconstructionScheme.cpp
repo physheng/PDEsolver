@@ -5,7 +5,8 @@ void FluxCalculatorPiecewiseParabolicReconstructionScheme::calcFlux(
                const int gridSize){
 
     int i;
-    double ur, ul, ri, FluxLimiter;
+   //double ur, ul, ri;
+   double FluxLimiter;
 
 
     for (i = 1; i < gridSize; i++){

@@ -51,7 +51,7 @@ class Simulation1DClass:public Field1DClass{
       string phaseSpaceHeader;
 
       // Simulation did setup correctly
-      bool status;
+      //bool status;
 
       MainSolverClass *solver;
 

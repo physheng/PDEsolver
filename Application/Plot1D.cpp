@@ -140,12 +140,6 @@ void Plot1D::setThePlot(string fileName, string fileName_ex, int gridSize)
   connect(ui->customPlot, SIGNAL(mousePress(QMouseEvent*)), this,
           SLOT(clickedGraph(QMouseEvent*)));
 
-// other interaction options:
-//  ui->customPlot->setInteraction(QCP::iSelectPlottables, true);
-//  ui->customPlot->setInteraction(QCP::iMultiSelect, true);
-//  ui->customPlot->setInteraction(QCP::iSelectAxes, true);
-//  ui->customPlot->legend->setVisible(true);
-
   ui->customPlot->replot();
 }
 

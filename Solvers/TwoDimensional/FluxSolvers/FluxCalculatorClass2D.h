@@ -13,6 +13,7 @@ class FluxCalculatorClass2D{
       virtual void calcFlux(const double Phi[], double Flux[],
                             const int xGridSize, const int yGridSize,
                             const double vx, const double vy) = 0;
+      virtual ~FluxCalculatorClass2D(){}
 
    private:
 

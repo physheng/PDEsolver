@@ -46,7 +46,7 @@ class Simulation2DClass:public Field2DClass{
       double actualTime;
 
       // Simulation did setup correctly
-      bool status;
+      //bool status;
 
       MainSolverClass2D *solver;
 

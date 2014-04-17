@@ -20,7 +20,7 @@ class MainSolverClass2D{
          gridSize = 100;
       }
 
-      ~MainSolverClass2D(){
+     virtual ~MainSolverClass2D(){
 		 delete FluxSolver;
 	  }
 

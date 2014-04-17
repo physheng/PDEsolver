@@ -135,9 +135,11 @@ void SimulationMainWindow2D::runSimulation(){
 
         picture2D->showResult(simulation->returnPhi());
         picture2D->show();
-        
-        exactPicture2D->showResult(simulation->returnExactPhi());
+        picture2D->repaint();
+        exactPicture2D->showError(simulation->returnExactPhi(),simulation->returnPhi());
+        //exactPicture2D->showResult(simulation->returnExactPhi());
         exactPicture2D->show();
+        exactPicture2D->repaint();
 
      }
 	  
@@ -159,6 +161,9 @@ void SimulationMainWindow2D::pauseSimulation(){
 
 void SimulationMainWindow2D::restartSimulation(){
 
+   //picture2D->close();
+   //exactPicture2D->close();
+   
    simIterator    = 0;
    simulationTime = 0.0;
    simulationErr  = 0.0;
